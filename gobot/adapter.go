@@ -1,27 +1,37 @@
 package gobot
 
-// type Adapter struct {
-// }
+import (
+	"bufio"
+	"errors"
+	"os"
+)
 
+// Adapter interface
 type Adapter interface {
-	Send(env *Envelope, strings []string) error
-	Emote(env *Envelope, strings []string) error
-	Reply(env *Envelope, strings []string) error
-	Topic(env *Envelope, strings []string) error
+	Run() error
+	Stop() error
+
+	Send(*Response, ...string) error
+	Emote(*Response, ...string) error
+	Reply(*Response, ...string) error
+	Topic(*Response, ...string) error
+	Play(*Response, ...string) error
+
+	Receive(*Message) error
+
+	Robot() *Robot
+	SetRobot(*Robot)
 }
 
-// func (a *Adapter) Send(env *Envelope, strings []string) error {
-// 	return nil
-// }
+func NewAdapter(name string) (Adapter, error) {
+	switch name {
+	case "shell":
+		return &ShellAdapter{
+			out: bufio.NewWriter(os.Stdout),
+			in:  bufio.NewReader(os.Stdin),
+		}, nil
+	default:
+		return nil, errors.New("invalid adapter name")
+	}
 
-// func (a *Adapter) Emote(env *Envelope, strings []string) error {
-// 	return nil
-// }
-
-// func (a *Adapter) Reply(env *Envelope, strings []string) error {
-// 	return nil
-// }
-
-// func (a *Adapter) Topic(env *Envelope, strings []string) error {
-// 	return nil
-// }
+}

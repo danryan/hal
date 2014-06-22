@@ -2,106 +2,116 @@ package gobot
 
 import (
 	"log"
-	_ "regexp"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 // Robot receives messages from an adapter and sends them to listeners
 type Robot struct {
 	*Config
-	Name    string
-	Adapter Adapter
-	Logger  *log.Logger
-	// listeners []*Listener
-	// handlers map[string]Handler
-	handlers []Handler
-	// commands map[string]Command
+	Name       string
+	Alias      string
+	Adapter    Adapter
+	Logger     *log.Logger
+	handlers   []Handler
+	signalChan chan os.Signal
+
+	// Listeners map[string][]Handler
 }
 
-// func (r *Robot) Response() *Response {
-// 	return &Response{}
-// }
-
-func (r *Robot) Handlers() []Handler {
-	return r.handlers
+// Handlers returns the robot's handlers
+func (robot *Robot) Handlers() []Handler {
+	return robot.handlers
 }
+
+const (
+	RobotRegex = `^(?:(?:h|hubot)[:,]?)\s+(?:(do .+))`
+)
 
 // NewRobot returns a new Robot instance
-func NewRobot() *Robot {
+func NewRobot() (*Robot, error) {
+	robot := &Robot{}
 	config := NewConfig()
-	return &Robot{
-		Name:    config.Name,
-		Adapter: config.Adapter,
-		Logger:  config.Logger,
+
+	adapter, err := NewAdapter(config.AdapterName)
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
+	adapter.SetRobot(robot)
+
+	robot.Name = config.Name
+	robot.Logger = config.Logger
+	robot.Adapter = adapter
+	robot.signalChan = make(chan os.Signal, 1)
+
+	return robot, nil
 }
 
-func (r *Robot) Handle(handler ...Handler) {
-	r.handlers = append(r.handlers, handler...)
+// Handle registers a new handler with the robot
+func (robot *Robot) Handle(handlers ...Handler) {
+	// name := robot.Name
+	robot.handlers = append(robot.handlers, handlers...)
 }
 
-// func (r *Robot) AddHandlers(handlers ...Handler) {
-// 	for _, handler := range handlers {
-// 		r.AddHandler(handler)
-// 	}
-// }
+// Receive dispatches messages to our handlers
+func (robot *Robot) Receive(msg *Message) error {
+	log.Println("received message:", msg.Text)
 
-// func (r *Robot) AddHandler(handler Handler) {
-// 	r.Handlers = append(r.Handlers, handler)
-// }
+	for _, handler := range robot.handlers {
+		response := NewResponse(robot, msg)
 
-// func (r *Robot) AddHandler(method string, pattern string, handler HandlerFunc) error {
-// 	regex, err := regexp.Compile(pattern)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	listener := &Listener{method: method, regex: regex, handler: handler}
-// 	r.listeners = append(r.listeners, listener)
-
-// 	return nil
-// }
-
-// func (r *Robot) Hear(regex string, handler HandlerFunc) error {
-// 	r.AddHandler(HEAR, regex, handler)
-
-// 	// handler := &Handler
-// 	// // r.AddHandler()
-// 	// listener := &Listener{Robot: r, Regex: regex, Callback: handler}
-// 	// r.Listeners = append(r.Listeners, listener)
-// 	// append(r.Listeners, &Listener{})
-// 	return nil
-// }
-
-// func (r *Robot) Respond(regex string, fn func()) error {
-// 	return nil
-// }
-
-// func (r *Robot) Topic() error {
-// 	return nil
-// }
-
-// func (r *Robot) Enter() error {
-// 	return nil
-// }
-
-// func (r *Robot) Leave() error {
-// 	return nil
-// }
-
-func (r *Robot) Send(strings ...string) error {
-	// r.Adapter.Send(env, strings)
+		// log.Println("using handler", handler.String())
+		err := handler.Handle(response)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func (r *Robot) Reply() error {
+// Stop initiates the shutdown process
+func (robot *Robot) Stop() error {
+	robot.Adapter.Stop()
+	log.Println("Shutting down...")
+
 	return nil
 }
 
-func (r *Robot) Close() error {
+// Run starts up the robot
+func (robot *Robot) Run() error {
+	defer robot.Stop()
+
+	stop := false
+
+	go robot.Adapter.Run()
+
+	signal.Notify(robot.signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+
+	for !stop {
+		select {
+		case sig := <-robot.signalChan:
+			switch sig {
+			case syscall.SIGHUP:
+				log.Println("Reloading...")
+			case syscall.SIGINT, syscall.SIGTERM:
+				stop = true
+			}
+		}
+	}
+
 	return nil
 }
 
-func (r *Robot) Run() error {
-	return nil
+func (robot *Robot) RespondRegex(pattern string) string {
+	str := `^(?:`
+	if robot.Alias != "" {
+		str += `(?:` + robot.Alias + `|` + robot.Name + `)`
+	} else {
+		str += robot.Name
+	}
+	str += `[:,]?)\s+(?:` + pattern + `)`
+	return str
+	// return `^(?:(?:h|hubot)[:,]?)\s+(?:` + pattern + `)`
 }

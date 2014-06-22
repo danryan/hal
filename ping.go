@@ -4,32 +4,17 @@ import (
 	"gobot/gobot"
 )
 
-// type pingHandler struct{}
+var respondHandler = gobot.Respond(`(?i)respond$`, func(res *gobot.Response) error {
+	res.Reply("responding")
+	return nil
+})
 
-// func (h *pingHandler) Pattern() string {
-// 	return `/ping$/i`
-// }
+var hearHandler = gobot.Hear(`(?i)hear$`, func(res *gobot.Response) error {
+	res.Send("hearing")
+	return nil
+})
 
-// func (h *pingHandler) Handle(msg *gobot.Message) error {
-// 	msg.Send("PONG")
-// 	return nil
-// }
-
-// var pingCommand = func(msg *gobot.Message) {
-// 	// command := gobot.Command(`/ping$/i`)
-// 	msg.Send("PONG")
-// }
-
-// func pingCmd(msg *gobot.Message) (string, gobot.Handler) {
-// 	return `/ping$/i`, func(msg *gobot.Message) {
-// 		msg.Send("PONG")
-// 	}(msg)
-// }
-
-var pingCmd = &gobot.Command{"respond", `/ping$/i`, func(msg *gobot.Message) {
-	msg.Send("PONG")
-}}
-
-var synCmd = gobot.Respond(`/syn$/i`, func(msg *gobot.Message) {
-	msg.Send("ACK")
+var enterHandler = gobot.Enter(func(res *gobot.Response) error {
+	res.Send("ACK")
+	return nil
 })

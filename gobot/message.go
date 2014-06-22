@@ -12,36 +12,25 @@ type Message struct {
 	User *User
 	Room string
 	Text string
-	*Robot
 }
 
 // TextMessage represents an incoming chat message.
-type TextMessage struct {
-	Message
-}
+type TextMessage Message
 
 // EnterMessage represents an incoming user entrance notification.
-type EnterMessage struct {
-	Message
-}
+type EnterMessage Message
 
 // LeaveMessage represents an incoming user exit notification.
-type LeaveMessage struct {
-	Message
-}
+type LeaveMessage Message
 
 // TopicMessage represents an incoming topic change notification.
-type TopicMessage struct {
-	TextMessage
-}
+type TopicMessage Message
 
 // CatchAllMessage represents an unmatched message.
-type CatchAllMessage struct {
-	Message
-}
+type CatchAllMessage Message
 
 // Match determines if the message matches the given regex.
-func (msg *TextMessage) Match(regex string) error {
+func (msg *Message) Match(regex string) error {
 	// m.text matches regex
 	return nil
 }
@@ -51,6 +40,12 @@ func (msg *Message) ToString() (string, error) {
 	return msg.Text, nil
 }
 
-func (msg *Message) Send(strings ...string) {
-	msg.Robot.Send(strings...)
-}
+// // Send sends a response to the room
+// func (msg *Message) Send(strings ...string) {
+// 	msg.Robot.Send(msg, strings...)
+// }
+
+// // Reply sends a response to the user who sent the message
+// func (msg *Message) Reply(strings ...string) {
+// 	msg.Robot.Reply(msg, strings...)
+// }

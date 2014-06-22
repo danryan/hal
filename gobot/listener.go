@@ -1,39 +1,46 @@
 package gobot
 
 import (
+	// "github.com/davecgh/go-spew/spew"
+	"log"
 	"regexp"
 )
 
-// Listener receives every message from the chat source and decide whether to act on it.
-// type Listener struct {
-// 	Robot    *Robot
-// 	Regex    string
-// 	Callback func(robot *Robot, response *Response)
-// 	// Matcher  string
-// }
+// Listener struct
 type Listener struct {
-	method  string
+	Method  string
+	Pattern string
+	Handler func(res *Response) error
 	regex   *regexp.Regexp
-	handler HandlerFunc
 }
 
-// type TextListener struct {
-// 	Listener
-// 	Regex string
-// }
+// Handle implements the gobot.Handler interface
+func (l *Listener) Handle(res *Response) error {
+	robot := res.Robot
+	text := res.Message.Text
 
-// TODO: Match should actually match something
-func (l *Listener) Match(m *Message) ([]string, bool) {
-	return []string{"true"}, true
-	// if match := l.Match
+	if l.Method == RESPOND {
+		l.regex = regexp.MustCompile(robot.RespondRegex(l.Pattern))
+	} else {
+		l.regex = regexp.MustCompile(l.Pattern)
+	}
+	// regex, err := regexp.Compile(pattern)
+
+	match := l.regex.FindAllStringSubmatch(text, -1)
+	if match == nil {
+		log.Printf(`/%s/ did not match "%s"`, l.String(), text)
+		return nil
+	}
+	log.Printf(`/%s/ matched "%s"`, l.String(), text)
+	res.Match = match
+
+	herr := l.Handler(res)
+	if herr != nil {
+		return herr
+	}
+	return nil
 }
 
-// // Call checks whether the listener should
-// func (l *Listener) Call(msg *Message) bool {
-// 	if match, ok := l.Match(msg); ok {
-// 		response := &Response{Robot: l.Robot, Message: msg, Match: match}
-// 		go l.Callback(l.Robot, response)
-// 		return true
-// 	}
-// 	return false
-// }
+func (l *Listener) String() string {
+	return l.Pattern
+}

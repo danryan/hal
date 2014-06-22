@@ -1,25 +1,121 @@
 package gobot
 
 import (
-// "gobot/gobot"
+	"bufio"
+	"fmt"
+	"log"
+	"strings"
 )
 
+// ShellAdapter struct
 type ShellAdapter struct {
-	// gobot.Adapter
+	BasicAdapter
+	in  *bufio.Reader
+	out *bufio.Writer
+
+	// robot *Robot
 }
 
-func (a *ShellAdapter) Send(env *Envelope, strings []string) error {
+// Send sends a regular response
+func (a *ShellAdapter) Send(res *Response, strings ...string) error {
+	for _, str := range strings {
+		err := a.writeString(str)
+		if err != nil {
+			log.Println("error: ", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
-func (a *ShellAdapter) Emote(env *Envelope, strings []string) error {
+// Reply sends a direct response
+func (a *ShellAdapter) Reply(res *Response, strings ...string) error {
+	for _, str := range strings {
+		s := res.Message.User.ID + `: ` + str
+		err := a.writeString(s)
+		if err != nil {
+			log.Println("error: ", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
-func (a *ShellAdapter) Reply(env *Envelope, strings []string) error {
+// Emote performs an emote
+func (a *ShellAdapter) Emote(res *Response, strings ...string) error {
 	return nil
 }
 
-func (a *ShellAdapter) Topic(env *Envelope, strings []string) error {
+// Topic sets the topic
+func (a *ShellAdapter) Topic(res *Response, strings ...string) error {
+	return nil
+}
+
+// Play plays a sound
+func (a *ShellAdapter) Play(res *Response, strings ...string) error {
+	return nil
+}
+
+// Receive forwards a message to the robot
+func (a *ShellAdapter) Receive(msg *Message) error {
+	a.robot.Receive(msg)
+	return nil
+}
+
+// Run executes the adapter run loop
+func (a *ShellAdapter) Run() error {
+	log.Println("Starting adapter...")
+
+	prompt()
+	for {
+		line, _, err := a.in.ReadLine()
+
+		message := a.newMessage(string(line))
+
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+		a.Receive(message)
+		prompt()
+
+	}
+	return nil
+}
+
+func (a *ShellAdapter) Stop() error {
+	log.Println("Stopping adapter...")
+	return nil
+}
+
+func prompt() {
+	fmt.Print("> ")
+}
+
+// func newMessage(text string) *Message {
+func (a *ShellAdapter) newMessage(text string) *Message {
+	return &Message{
+		ID:   "local-message",
+		User: &User{ID: "shell"},
+		Room: "shell",
+		Text: text,
+	}
+}
+
+func (a *ShellAdapter) writeString(str string) error {
+	msg := fmt.Sprintf("%s\n", strings.TrimSpace(str))
+
+	// _, err := a.out.WriteString(msg)
+	_, err := a.out.WriteString(msg)
+	if err != nil {
+		return err
+	}
+
+	ferr := a.out.Flush()
+	if ferr != nil {
+		return err
+	}
+
 	return nil
 }

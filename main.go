@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"github.com/davecgh/go-spew/spew"
+	_ "github.com/davecgh/go-spew/spew"
 	"gobot/gobot"
+	"log"
 	"os"
 )
 
@@ -12,20 +12,30 @@ func main() {
 }
 
 func Run() int {
-	robot := gobot.NewRobot()
+	robot, err := gobot.NewRobot()
 
-	robot.Handle(
-		pingCmd,
-		synCmd,
-	)
-
-	spew.Dump(robot.Handlers())
-
-	err := robot.Run()
 	if err != nil {
-		fmt.Println("Failure!")
+		log.Println("Failure!")
 		return 1
 	}
-	fmt.Println("Success!")
+
+	robot.Handle(
+		respondHandler,
+		hearHandler,
+	)
+
+	// spew.Dump(robot.Adapter)
+	// spew.Dump(robot.Handlers())
+	robot.Alias = "hubot"
+	log.Println(robot.RespondRegex("do (.+)"))
+
+	if err := robot.Run(); err != nil {
+		log.Println("Failure!")
+		return 1
+	}
+	log.Println("Success!")
 	return 0
 }
+
+// ^(?:(?:h|hubot)[:,]?)\s+(?:do (.+)))
+// ^(?:(?:h|hubot)[:,]?)\s+(?:do (.+))

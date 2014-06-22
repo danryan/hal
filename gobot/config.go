@@ -1,16 +1,17 @@
 package gobot
 
 import (
-	_ "github.com/davecgh/go-spew/spew"
-	_ "github.com/kelseyhightower/envconfig"
 	"log"
 	"os"
+
+	_ "github.com/davecgh/go-spew/spew"
+	_ "github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
-	Name string
-	Adapter
-	Logger *log.Logger
+	Name        string
+	AdapterName string
+	Logger      *log.Logger
 	// AdapterName string
 }
 
@@ -19,7 +20,7 @@ type Config struct {
 func NewConfig() *Config {
 	config := &Config{}
 	config.Name = "gobot"
-	config.Adapter = &ShellAdapter{}
+	config.AdapterName = "shell"
 	config.Logger = log.New(os.Stdout, "[gobot] ", 0)
 
 	return config
