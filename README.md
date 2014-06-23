@@ -12,3 +12,22 @@ Is it any good?
 ---------------
 
 [Probably not.](http://news.ycombinator.com/item?id=3067434)
+
+
+TODO
+----
+
+Definitely
+~~~~~~~~~~
+
+* documentation
+* command line configuration
+* more example handlers
+
+
+Maybe
+~~~~~
+
+* command not found handler
+* change enter/leave to join/part
+* autoregister new commands
