@@ -2,6 +2,7 @@ package hal
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,6 +17,7 @@ type Robot struct {
 	Logger     *log.Logger
 	handlers   []Handler
 	signalChan chan os.Signal
+	router     *http.ServeMux
 
 	// Listeners map[string][]Handler
 }
@@ -41,6 +43,7 @@ func NewRobot() (*Robot, error) {
 	robot.Logger = config.Logger
 	robot.Adapter = adapter
 	robot.signalChan = make(chan os.Signal, 1)
+	robot.router = http.NewServeMux()
 
 	return robot, nil
 }
