@@ -12,8 +12,6 @@ type ShellAdapter struct {
 	BasicAdapter
 	in  *bufio.Reader
 	out *bufio.Writer
-
-	// robot *Robot
 }
 
 // Send sends a regular response
@@ -66,8 +64,7 @@ func (a *ShellAdapter) Receive(msg *Message) error {
 
 // Run executes the adapter run loop
 func (a *ShellAdapter) Run() error {
-	log.Println("Starting adapter...")
-
+	a.run()
 	prompt()
 	for {
 		line, _, err := a.in.ReadLine()
@@ -85,7 +82,7 @@ func (a *ShellAdapter) Run() error {
 }
 
 func (a *ShellAdapter) Stop() error {
-	log.Println("Stopping adapter...")
+	a.stop()
 	return nil
 }
 
@@ -106,7 +103,6 @@ func (a *ShellAdapter) newMessage(text string) *Message {
 func (a *ShellAdapter) writeString(str string) error {
 	msg := fmt.Sprintf("%s\n", strings.TrimSpace(str))
 
-	// _, err := a.out.WriteString(msg)
 	_, err := a.out.WriteString(msg)
 	if err != nil {
 		return err

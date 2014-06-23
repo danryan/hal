@@ -1,6 +1,7 @@
 package hal
 
 import (
+	"log"
 	"os"
 )
 
@@ -18,4 +19,12 @@ func (a *BasicAdapter) Robot() *Robot {
 // SetRobot sets the adapter's robot instance
 func (a *BasicAdapter) SetRobot(r *Robot) {
 	a.robot = r
+}
+
+func (a *BasicAdapter) run() {
+	log.Println("Starting adapter...")
+}
+
+func (a *BasicAdapter) stop() {
+	log.Println("Stopping adapter...")
 }
