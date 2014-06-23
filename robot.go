@@ -1,25 +1,27 @@
 package hal
 
 import (
-	"log"
+	"fmt"
+	"github.com/ccding/go-logging/logging"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 // Robot receives messages from an adapter and sends them to listeners
 type Robot struct {
 	*Config
-	Name       string
-	Alias      string
-	Adapter    Adapter
-	Logger     *log.Logger
+	Name    string
+	Alias   string
+	Adapter Adapter
+	Logger  *logging.Logger
+	Port    string
+	Router  *http.ServeMux
+
 	handlers   []Handler
 	signalChan chan os.Signal
-	router     *http.ServeMux
-
-	// Listeners map[string][]Handler
 }
 
 // Handlers returns the robot's handlers
@@ -34,7 +36,7 @@ func NewRobot() (*Robot, error) {
 
 	adapter, err := NewAdapter(config.AdapterName)
 	if err != nil {
-		log.Println(err)
+		robot.Logger.Error(err)
 		return nil, err
 	}
 	adapter.SetRobot(robot)
@@ -42,8 +44,9 @@ func NewRobot() (*Robot, error) {
 	robot.Name = config.Name
 	robot.Logger = config.Logger
 	robot.Adapter = adapter
+	robot.Port = config.Port
 	robot.signalChan = make(chan os.Signal, 1)
-	robot.router = http.NewServeMux()
+	robot.Router = newRouter() //http.NewServeMux()
 
 	return robot, nil
 }
@@ -69,18 +72,20 @@ func (robot *Robot) Receive(msg *Message) error {
 // Stop initiates the shutdown process
 func (robot *Robot) Stop() error {
 	robot.Adapter.Stop()
-	log.Println("Shutting down...")
+	// robot.Logger.
+	robot.Logger.Info("Shutting down.")
 
 	return nil
 }
 
 // Run starts up the robot
 func (robot *Robot) Run() error {
-	defer robot.Stop()
-
 	stop := false
 
 	go robot.Adapter.Run()
+	// Start the HTTP server after the adapter, as adapter.Run() adds additional
+	// handlers to the router.
+	go http.ListenAndServe(`:`+robot.Port, robot.Router)
 
 	signal.Notify(robot.signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
@@ -88,18 +93,20 @@ func (robot *Robot) Run() error {
 		select {
 		case sig := <-robot.signalChan:
 			switch sig {
-			case syscall.SIGHUP:
-				log.Println("Reloading...")
+			// case syscall.SIGHUP:
+			// robot.Logger.Info("Reloading")
 			case syscall.SIGINT, syscall.SIGTERM:
 				stop = true
 			}
 		}
 	}
 
+	robot.Stop()
+
 	return nil
 }
 
-func (robot *Robot) RespondRegex(pattern string) string {
+func (robot *Robot) respondRegex(pattern string) string {
 	str := `^(?:`
 	if robot.Alias != "" {
 		str += `(?:` + robot.Alias + `|` + robot.Name + `)`
@@ -108,5 +115,18 @@ func (robot *Robot) RespondRegex(pattern string) string {
 	}
 	str += `[:,]?)\s+(?:` + pattern + `)`
 	return str
-	// return `^(?:(?:h|hubot)[:,]?)\s+(?:` + pattern + `)`
+}
+
+// newRouter initializes a new http.ServeMux and sets up several default routes
+func newRouter() *http.ServeMux {
+	router := http.NewServeMux()
+	router.HandleFunc("/hal/ping", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "PONG")
+	})
+
+	router.HandleFunc("/hal/time", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Server time is: %s\n", time.Now())
+	})
+
+	return router
 }

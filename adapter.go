@@ -10,6 +10,8 @@ import (
 type Adapter interface {
 	Run() error
 	Stop() error
+	String() string
+	Name() string
 
 	Send(*Response, ...string) error
 	Emote(*Response, ...string) error
@@ -28,8 +30,9 @@ func NewAdapter(name string) (Adapter, error) {
 	switch name {
 	case "shell":
 		return &ShellAdapter{
-			out: bufio.NewWriter(os.Stdout),
-			in:  bufio.NewReader(os.Stdin),
+			out:     bufio.NewWriter(os.Stdout),
+			in:      bufio.NewReader(os.Stdin),
+			runChan: make(chan bool, 1),
 		}, nil
 	case "slack":
 		return &SlackAdapter{

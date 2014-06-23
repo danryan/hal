@@ -19,7 +19,7 @@ func (l *Listener) Handle(res *Response) error {
 	text := res.Message.Text
 
 	if l.Method == RESPOND {
-		l.regex = regexp.MustCompile(robot.RespondRegex(l.Pattern))
+		l.regex = regexp.MustCompile(robot.respondRegex(l.Pattern))
 	} else {
 		l.regex = regexp.MustCompile(l.Pattern)
 	}

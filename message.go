@@ -1,7 +1,6 @@
 package hal
 
 // TODO: can subtypes just all inherit from Message?
-
 // type Message interface {
 // 	ToString() (string, error)
 // }
@@ -36,7 +35,7 @@ func (msg *Message) Match(regex string) error {
 }
 
 // ToString returns the message text.
-func (msg *Message) ToString() (string, error) {
+func (msg *Message) String() (string, error) {
 	return msg.Text, nil
 }
 

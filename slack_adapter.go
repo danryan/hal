@@ -2,8 +2,8 @@ package hal
 
 import (
 	_ "fmt"
-	_ "log"
-	_ "net/http"
+	"log"
+	"net/http"
 	_ "os"
 	_ "strings"
 )
@@ -63,15 +63,31 @@ func (a *SlackAdapter) Receive(msg *Message) error {
 
 // Run starts the adapter
 func (a *SlackAdapter) Run() error {
-	a.run()
+	a.preRun()
+	// set up handlers
+	a.robot.Router.HandleFunc("/hal/slack-webhook", slackHandler)
+	a.postRun()
 
 	return nil
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.URL)
+}
+
+func slackHandler(w http.ResponseWriter, r *http.Request) {
+	// send an empty response
+	w.Write([]byte("yay"))
 }
 
 // Stop shuts down the adapter
 func (a *SlackAdapter) Stop() error {
 	a.stop()
 	return nil
+}
+
+func (a *SlackAdapter) Name() string {
+	return "slack"
 }
 
 // TODO: implement

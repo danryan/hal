@@ -1,7 +1,7 @@
 package hal
 
 import (
-	"log"
+	"github.com/ccding/go-logging/logging"
 	// "regexp"
 )
 
@@ -11,6 +11,7 @@ type Response struct {
 	Message  *Message
 	Match    [][]string
 	Listener Listener
+	Logger   *logging.Logger
 	// Match    []string
 	// Envelope *Envelope
 }
@@ -42,13 +43,14 @@ func NewResponse(robot *Robot, msg *Message) *Response {
 	return &Response{
 		Message: msg,
 		Robot:   robot,
+		Logger:  robot.Logger,
 	}
 }
 
 // Send posts a message back to the chat source
 func (response *Response) Send(strings ...string) error {
 	if err := response.Robot.Adapter.Send(response, strings...); err != nil {
-		log.Println("error:", err)
+		response.Logger.Infof("error:", err)
 		return err
 	}
 	// log.Println("send: no error")
@@ -59,7 +61,7 @@ func (response *Response) Send(strings ...string) error {
 // Reply posts a message mentioning the current user
 func (response *Response) Reply(strings ...string) error {
 	if err := response.Robot.Adapter.Reply(response, strings...); err != nil {
-		log.Println("error:", err)
+		response.Logger.Error(err)
 		return err
 	}
 	return nil
@@ -68,7 +70,7 @@ func (response *Response) Reply(strings ...string) error {
 // Emote posts an emote back to the chat source
 func (response *Response) Emote(strings ...string) error {
 	if err := response.Robot.Adapter.Emote(response, strings...); err != nil {
-		log.Println("error:", err)
+		response.Logger.Error(err)
 		return err
 	}
 	return nil
@@ -77,7 +79,7 @@ func (response *Response) Emote(strings ...string) error {
 // Topic posts a topic changing message
 func (response *Response) Topic(strings ...string) error {
 	if err := response.Robot.Adapter.Send(response, strings...); err != nil {
-		log.Println("error:", err)
+		response.Logger.Error(err)
 		return err
 	}
 	return nil
@@ -86,7 +88,7 @@ func (response *Response) Topic(strings ...string) error {
 // Play posts a sound message
 func (response *Response) Play(strings ...string) error {
 	if err := response.Robot.Adapter.Play(response, strings...); err != nil {
-		log.Println("error:", err)
+		response.Logger.Error(err)
 		return err
 	}
 	return nil
