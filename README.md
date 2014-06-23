@@ -14,6 +14,8 @@ Hal is Go all the way down, and only uses standard packages. It's a bit rough ar
 
 ### Definitely
 
+* tests :O
+* help (and help parsing)
 * documentation
 * command line configuration
 * more example handlers
