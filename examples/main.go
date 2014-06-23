@@ -1,7 +1,7 @@
 package main
 
 import (
-	"hal"
+	"github.com/danryan/hal"
 	"log"
 	"os"
 )
