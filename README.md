@@ -6,7 +6,7 @@ HAL
 Getting started
 ---------------
 
-Hal is Go all the way down, and only uses standard packages. It's a bit rough around the edges right now. For an idea of how you can use it, look at [examples/main.go](examples/main.go). 
+Hal is Go all the way down, and only uses standard packages. It's a bit rough around the edges right now. For an idea of how you can use it, look at [examples/main.go](examples/main.go). Documentation is available [here](http://godoc.org/github.com/danryan/hal).
 
 Is it any good?
 ---------------
