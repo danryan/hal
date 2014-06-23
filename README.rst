@@ -6,4 +6,4 @@ HAL
 Getting started
 ---------------
 
-Hal's a bit rough around the edges right now. For an idea of how you can use it, look at [examples/main.go](examples/main.go).
+Hal's a bit rough around the edges right now. For an idea of how you can use it, look at (examples/main.go)[examples/main.go].
