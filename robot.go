@@ -51,18 +51,14 @@ func NewRobot() (*Robot, error) {
 
 // Handle registers a new handler with the robot
 func (robot *Robot) Handle(handlers ...Handler) {
-	// name := robot.Name
 	robot.handlers = append(robot.handlers, handlers...)
 }
 
 // Receive dispatches messages to our handlers
 func (robot *Robot) Receive(msg *Message) error {
-	log.Println("received message:", msg.Text)
-
 	for _, handler := range robot.handlers {
 		response := NewResponse(robot, msg)
 
-		// log.Println("using handler", handler.String())
 		err := handler.Handle(response)
 		if err != nil {
 			return err

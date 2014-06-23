@@ -3,11 +3,8 @@
 * example scripts (handlers)
 * command not found handler
 * change enter/leave to join/part ?
-* figure out how to autoregister new commands
-* change handler signature to support `ResponseWriter` and `Message`, i.e.:
-```
-func (rw hal.ResponseWriter, msg *hal.Message)
-```
+* autoregister new commands?
 
 ## Done
-* rename command back to listener
+* rename project to hal
+* rename command to listener

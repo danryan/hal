@@ -1,8 +1,7 @@
 package hal
 
 import (
-	// "github.com/davecgh/go-spew/spew"
-	"log"
+	//"log"
 	"regexp"
 )
 
@@ -24,14 +23,13 @@ func (l *Listener) Handle(res *Response) error {
 	} else {
 		l.regex = regexp.MustCompile(l.Pattern)
 	}
-	// regex, err := regexp.Compile(pattern)
 
 	match := l.regex.FindAllStringSubmatch(text, -1)
 	if match == nil {
-		log.Printf(`/%s/ did not match "%s"`, l.String(), text)
+		// log.Printf(`/%s/ did not match "%s"`, l.String(), text)
 		return nil
 	}
-	log.Printf(`/%s/ matched "%s"`, l.String(), text)
+	// log.Printf(`/%s/ matched "%s"`, l.String(), text)
 	res.Match = match
 
 	herr := l.Handler(res)
