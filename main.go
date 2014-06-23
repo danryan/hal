@@ -2,7 +2,7 @@ package main
 
 import (
 	_ "github.com/davecgh/go-spew/spew"
-	"gobot/gobot"
+	"hal/hal"
 	"log"
 	"os"
 )
@@ -12,7 +12,7 @@ func main() {
 }
 
 func Run() int {
-	robot, err := gobot.NewRobot()
+	robot, err := hal.NewRobot()
 
 	if err != nil {
 		log.Println("Failure!")

@@ -1,4 +1,4 @@
-package gobot
+package hal
 
 import (
 	"log"

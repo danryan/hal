@@ -1,4 +1,4 @@
-package gobot
+package hal
 
 import (
 	_ "errors"
@@ -20,7 +20,7 @@ func New() (*Robot, error) {
 
 // Hear a message
 func Hear(pattern string, handler HandlerFunc) *Listener {
-	return &Listener{Method: HEAR, Pattern: pattern, Handler: handler} //, regex: regexp.MustCompile(pattern)}
+	return &Listener{Method: HEAR, Pattern: pattern, Handler: handler}
 }
 
 // Respond creates a new listener for Respond messages

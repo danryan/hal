@@ -1,4 +1,4 @@
-package gobot
+package hal
 
 // User is a chat participant
 type User struct {

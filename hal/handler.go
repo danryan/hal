@@ -1,4 +1,4 @@
-package gobot
+package hal
 
 // Handler is an interface for objects to implement in order to respond
 // to messages.

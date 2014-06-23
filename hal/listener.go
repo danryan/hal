@@ -1,4 +1,4 @@
-package gobot
+package hal
 
 import (
 	// "github.com/davecgh/go-spew/spew"
@@ -14,7 +14,7 @@ type Listener struct {
 	regex   *regexp.Regexp
 }
 
-// Handle implements the gobot.Handler interface
+// Handle implements the hal.Handler interface
 func (l *Listener) Handle(res *Response) error {
 	robot := res.Robot
 	text := res.Message.Text

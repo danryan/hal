@@ -1,4 +1,4 @@
-package gobot
+package hal
 
 import (
 	"log"
@@ -19,9 +19,9 @@ type Config struct {
 // https://github.com/paulhammond/slackcat/blob/master/slackcat.go#L26-L52
 func NewConfig() *Config {
 	config := &Config{}
-	config.Name = "gobot"
+	config.Name = "hal"
 	config.AdapterName = "shell"
-	config.Logger = log.New(os.Stdout, "[gobot] ", 0)
+	config.Logger = log.New(os.Stdout, "[hal] ", 0)
 
 	return config
 }

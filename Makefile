@@ -1,4 +1,4 @@
-PKG_NAME := gobot
+PKG_NAME := hal
 
 all: deps build
 

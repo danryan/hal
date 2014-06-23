@@ -1,4 +1,4 @@
-package gobot
+package hal
 
 // TODO: can subtypes just all inherit from Message?
 

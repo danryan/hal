@@ -1,20 +1,20 @@
 package main
 
 import (
-	"gobot/gobot"
+	"hal/hal"
 )
 
-var respondHandler = gobot.Respond(`(?i)respond$`, func(res *gobot.Response) error {
+var respondHandler = hal.Respond(`(?i)respond$`, func(res *hal.Response) error {
 	res.Reply("responding")
 	return nil
 })
 
-var hearHandler = gobot.Hear(`(?i)hear$`, func(res *gobot.Response) error {
+var hearHandler = hal.Hear(`(?i)hear$`, func(res *hal.Response) error {
 	res.Send("hearing")
 	return nil
 })
 
-var enterHandler = gobot.Enter(func(res *gobot.Response) error {
+var enterHandler = hal.Enter(func(res *hal.Response) error {
 	res.Send("ACK")
 	return nil
 })
