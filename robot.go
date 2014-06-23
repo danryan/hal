@@ -25,10 +25,6 @@ func (robot *Robot) Handlers() []Handler {
 	return robot.handlers
 }
 
-const (
-	RobotRegex = `^(?:(?:h|hubot)[:,]?)\s+(?:(do .+))`
-)
-
 // NewRobot returns a new Robot instance
 func NewRobot() (*Robot, error) {
 	robot := &Robot{}
