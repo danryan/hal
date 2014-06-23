@@ -22,7 +22,7 @@ func Run() int {
 		return 1
 	}
 
-	// Or define them inline...
+	// Or define them inside another function...
 	var fooHandler = hal.Respond(`foo`, func(res *hal.Response) error {
 		return res.Send("BAR")
 	})
@@ -33,6 +33,11 @@ func Run() int {
 		scripts.PingHandler,
 		scripts.SynHandler,
 		openDoorsHandler,
+		fooHandler,
+		// Or even inline!
+		hal.Hear(`yo`, func(res *hal.Response) error {
+			return res.Send("lo")
+		}),
 	)
 
 	runErr := robot.Run()
