@@ -1,8 +1,10 @@
 # HAL
 
-"Good morning, Dr. Chandra. This is HAL. I'm ready for my first lesson."
+A chat bot in Go, now with 100% less CoffeeScript!
 
 ## Getting started
+
+"Good morning, Dr. Chandra. This is HAL. I'm ready for my first lesson."
 
 Hal is Go all the way down, and uses standard packages wherever possible. It's a bit rough around the edges right now. For an idea of how you can use it, look at [examples/main.go](examples/main.go). API Documentation is available [here](http://godoc.org/github.com/danryan/hal).
 
