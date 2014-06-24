@@ -1,2 +1,3 @@
 bin/hal
 examples/local.go
+.env

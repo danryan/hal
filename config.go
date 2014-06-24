@@ -22,7 +22,7 @@ func NewConfig() *Config {
 		Name:        GetenvDefault("HAL_NAME", "hal"),
 		AdapterName: GetenvDefault("HAL_ADAPTER", "shell"),
 		Logger:      newLogger(),
-		Port:        GetenvDefault("PORT", "8080"),
+		Port:        GetenvDefault("PORT", "9000"),
 	}
 }
 
@@ -42,7 +42,7 @@ func GetenvDefault(args ...string) string {
 }
 
 func newLogger() *logging.Logger {
-	format := "%25s [%s] %s: %s\n time,name,levelname,message"
+	format := "%25s [%s] %8s: %s\n time,name,levelname,message"
 	timeFormat := time.RFC3339
 	levelStr := strings.ToUpper(GetenvDefault("HAL_LOG_LEVEL", "INFO"))
 	level := logging.GetLevelValue(levelStr)

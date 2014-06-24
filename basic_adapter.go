@@ -33,6 +33,7 @@ func (a *BasicAdapter) run() {
 }
 
 func (a *BasicAdapter) preStop() {
+	fmt.Println() // so we don't break up the log formatting :)
 	a.Logger.Infof("Stopping %s adapter.", a)
 }
 

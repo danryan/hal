@@ -8,3 +8,6 @@
 * rename command to listener
 * example handlers
 * command line configuration (using ENV vars now)
+* slack integration
+* HTTP server, hubot-style
+* more example handlers

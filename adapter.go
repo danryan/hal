@@ -24,7 +24,6 @@ type Adapter interface {
 
 // NewAdapter returns a new Adapter object
 func NewAdapter(robot *Robot) (Adapter, error) {
-
 	switch robot.AdapterName {
 	case "shell":
 		return newShellAdapter(robot)
@@ -40,7 +39,9 @@ func newSlackAdapter(robot *Robot) (Adapter, error) {
 		token:    os.Getenv("HAL_SLACK_TOKEN"),
 		team:     os.Getenv("HAL_SLACK_TEAM"),
 		channels: os.Getenv("HAL_SLACK_CHANNELS"),
-		mode:     GetenvDefault("HAL_SLACK_MODE", "blacklist"),
+		mode:     GetenvDefault("HAL_SLACK_CHANNELMODE", "blacklist"),
+		botname:  GetenvDefault("HAL_SLACK_BOTNAME", robot.Name),
+		// iconEmoji: os.Getenv("HAL_SLACK_ICON_EMOJI"),
 	}
 	slack.SetRobot(robot)
 	return slack, nil

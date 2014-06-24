@@ -24,8 +24,8 @@ type Envelope struct {
 }
 
 // User is the user of the response's message
-func (res *Response) User() *User {
-	return res.Message.User
+func (res *Response) UserID() string {
+	return res.Message.User.ID
 }
 
 // Room is the room of the response's message

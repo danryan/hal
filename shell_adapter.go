@@ -31,7 +31,7 @@ func (a *ShellAdapter) Send(res *Response, strings ...string) error {
 // Reply sends a direct response
 func (a *ShellAdapter) Reply(res *Response, strings ...string) error {
 	for _, str := range strings {
-		s := res.Message.User.ID + `: ` + str
+		s := res.UserID() + `: ` + str
 		err := a.writeString(s)
 		if err != nil {
 			log.Println("error: ", err)
@@ -95,7 +95,6 @@ func (a *ShellAdapter) Run() error {
 
 // Stop the adapter
 func (a *ShellAdapter) Stop() error {
-	fmt.Println() // so we don't break up the log formatting :)
 	a.preStop()
 	a.runChan <- false
 	a.postStop()

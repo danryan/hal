@@ -59,11 +59,12 @@ func (robot *Robot) Handle(handlers ...Handler) {
 
 // Receive dispatches messages to our handlers
 func (robot *Robot) Receive(msg *Message) error {
+	robot.Logger.Debug("slack - robot received message")
 	for _, handler := range robot.handlers {
 		response := NewResponse(robot, msg)
-
 		err := handler.Handle(response)
 		if err != nil {
+			robot.Logger.Error(err)
 			return err
 		}
 	}
@@ -73,23 +74,24 @@ func (robot *Robot) Receive(msg *Message) error {
 // Stop initiates the shutdown process
 func (robot *Robot) Stop() error {
 	robot.Adapter.Stop()
-	// robot.Logger.
-	robot.Logger.Info("Shutting down.")
+	robot.Logger.Info("Stopping robot.")
 
 	return nil
 }
 
-// Run starts up the robot
+// Run initiates the startup process
 func (robot *Robot) Run() error {
-	stop := false
 
+	robot.Logger.Info("Starting robot.")
 	go robot.Adapter.Run()
 	// Start the HTTP server after the adapter, as adapter.Run() adds additional
 	// handlers to the router.
+	robot.Logger.Debug("Starting HTTP server. ")
 	go http.ListenAndServe(`:`+robot.Port, robot.Router)
 
 	signal.Notify(robot.signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
+	stop := false
 	for !stop {
 		select {
 		case sig := <-robot.signalChan:
@@ -101,7 +103,10 @@ func (robot *Robot) Run() error {
 			}
 		}
 	}
+	// Stop listening for new signals
+	signal.Stop(robot.signalChan)
 
+	// Initiate the shutdown process for our robot
 	robot.Stop()
 
 	return nil
