@@ -3,6 +3,7 @@ package hal
 import (
 	"fmt"
 	"github.com/ccding/go-logging/logging"
+	// "github.com/davecgh/go-spew/spew"
 	"net/http"
 	"os"
 	"os/signal"
@@ -31,22 +32,22 @@ func (robot *Robot) Handlers() []Handler {
 
 // NewRobot returns a new Robot instance
 func NewRobot() (*Robot, error) {
-	robot := &Robot{}
 	config := NewConfig()
+	robot := &Robot{
+		Name:       config.Name,
+		Logger:     config.Logger,
+		Port:       config.Port,
+		Config:     config,
+		Router:     newRouter(),
+		signalChan: make(chan os.Signal, 1),
+	}
 
-	adapter, err := NewAdapter(config.AdapterName)
+	adapter, err := NewAdapter(robot)
 	if err != nil {
 		robot.Logger.Error(err)
 		return nil, err
 	}
-	adapter.SetRobot(robot)
-
-	robot.Name = config.Name
-	robot.Logger = config.Logger
-	robot.Adapter = adapter
-	robot.Port = config.Port
-	robot.signalChan = make(chan os.Signal, 1)
-	robot.Router = newRouter() //http.NewServeMux()
+	robot.SetAdapter(adapter)
 
 	return robot, nil
 }
@@ -129,4 +130,24 @@ func newRouter() *http.ServeMux {
 	})
 
 	return router
+}
+
+func (robot *Robot) SetName(name string) {
+	robot.Name = name
+}
+
+func (robot *Robot) SetLogger(logger *logging.Logger) {
+	robot.Logger = logger
+}
+
+func (robot *Robot) SetAdapter(adapter Adapter) {
+	robot.Adapter = adapter
+}
+
+func (robot *Robot) SetPort(port string) {
+	robot.Port = port
+}
+
+func (robot *Robot) SetRouter(router *http.ServeMux) {
+	robot.Router = router
 }

@@ -20,35 +20,40 @@ type Adapter interface {
 	Play(*Response, ...string) error
 
 	Receive(*Message) error
-
-	Robot() *Robot
-	SetRobot(*Robot)
 }
 
 // NewAdapter returns a new Adapter object
-func NewAdapter(name string) (Adapter, error) {
-	switch name {
+func NewAdapter(robot *Robot) (Adapter, error) {
+
+	switch robot.AdapterName {
 	case "shell":
-		return &ShellAdapter{
-			out:     bufio.NewWriter(os.Stdout),
-			in:      bufio.NewReader(os.Stdin),
-			runChan: make(chan bool, 1),
-		}, nil
+		return newShellAdapter(robot)
 	case "slack":
-		return &SlackAdapter{
-			token:    os.Getenv("HAL_SLACK_TOKEN"),
-			team:     os.Getenv("HAL_SLACK_TEAM"),
-			channels: os.Getenv("HAL_SLACK_CHANNELS"),
-			mode: func() string {
-				mode := os.Getenv("HAL_SLACK_MODE")
-				if mode == "" {
-					return "blacklist"
-				}
-				return mode
-			}(),
-		}, nil
+		return newSlackAdapter(robot)
 	default:
 		return nil, errors.New("invalid adapter name")
 	}
+}
 
+func newSlackAdapter(robot *Robot) (Adapter, error) {
+	slack := &SlackAdapter{
+		token:    os.Getenv("HAL_SLACK_TOKEN"),
+		team:     os.Getenv("HAL_SLACK_TEAM"),
+		channels: os.Getenv("HAL_SLACK_CHANNELS"),
+		mode:     GetenvDefault("HAL_SLACK_MODE", "blacklist"),
+	}
+	slack.SetRobot(robot)
+	return slack, nil
+}
+
+func newShellAdapter(robot *Robot) (Adapter, error) {
+	shell := &ShellAdapter{
+		// Logger:  robot.Logger,
+		// Router:  robot.Router,
+		out:     bufio.NewWriter(os.Stdout),
+		in:      bufio.NewReader(os.Stdin),
+		runChan: make(chan bool, 1),
+	}
+	shell.SetRobot(robot)
+	return shell, nil
 }

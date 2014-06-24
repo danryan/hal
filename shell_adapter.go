@@ -59,7 +59,7 @@ func (a *ShellAdapter) Play(res *Response, strings ...string) error {
 
 // Receive forwards a message to the robot
 func (a *ShellAdapter) Receive(msg *Message) error {
-	a.robot.Receive(msg)
+	a.Robot.Receive(msg)
 	return nil
 }
 

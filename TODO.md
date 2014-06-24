@@ -1,4 +1,3 @@
-* command line configuration
 * docs!
 * command not found handler
 * change enter/leave to join/part ?
@@ -8,3 +7,4 @@
 * rename project to hal
 * rename command to listener
 * example handlers
+* command line configuration (using ENV vars now)

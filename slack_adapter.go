@@ -1,21 +1,17 @@
 package hal
 
 import (
-	_ "fmt"
-	"log"
 	"net/http"
-	_ "os"
-	_ "strings"
 )
 
 // SlackAdapter struct
 type SlackAdapter struct {
-	BasicAdapter // includes robot field
-	token        string
-	team         string
-	mode         string
-	channels     string //[]string
-	linkNames    []string
+	BasicAdapter
+	token     string
+	team      string
+	mode      string
+	channels  string //[]string
+	linkNames []string
 }
 
 // Send sends a regular response
@@ -57,7 +53,7 @@ func (a *SlackAdapter) Play(res *Response, strings ...string) error {
 
 // Receive forwards a message to the robot
 func (a *SlackAdapter) Receive(msg *Message) error {
-	a.robot.Receive(msg)
+	a.Robot.Receive(msg)
 	return nil
 }
 
@@ -65,17 +61,13 @@ func (a *SlackAdapter) Receive(msg *Message) error {
 func (a *SlackAdapter) Run() error {
 	a.preRun()
 	// set up handlers
-	a.robot.Router.HandleFunc("/hal/slack-webhook", slackHandler)
+	a.Router.HandleFunc("/hal/slack-webhook", a.slackHandler)
 	a.postRun()
 
 	return nil
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL)
-}
-
-func slackHandler(w http.ResponseWriter, r *http.Request) {
+func (a *SlackAdapter) slackHandler(w http.ResponseWriter, r *http.Request) {
 	// send an empty response
 	w.Write([]byte("yay"))
 }
