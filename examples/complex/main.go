@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./scripts"
 	"github.com/danryan/hal"
+	"github.com/danryan/hal/examples/complex/scripts"
 	"log"
 	"os"
 )
