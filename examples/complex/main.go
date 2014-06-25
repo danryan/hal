@@ -29,10 +29,10 @@ func Run() int {
 
 	// Or use the underlying hal.Listener struct...
 	var tableFlipHandler = &hal.Listener{
-		Method:  HEAR,
+		Method:  hal.HEAR,
 		Pattern: `tableflip`,
 		Handler: func(res *hal.Response) error {
-			res.Send(`(╯°□°）╯︵ ┻━┻`)
+			return res.Send(`(╯°□°）╯︵ ┻━┻`)
 		},
 	}
 
