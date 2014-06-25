@@ -145,9 +145,9 @@ func newRouter() *http.ServeMux {
 // 	robot.Logger = logger
 // }
 
-// func (robot *Robot) SetAdapter(adapter Adapter) {
-// 	robot.Adapter = adapter
-// }
+func (robot *Robot) SetAdapter(adapter Adapter) {
+	robot.Adapter = adapter
+}
 
 // func (robot *Robot) SetPort(port string) {
 // 	robot.Port = port
