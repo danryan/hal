@@ -52,6 +52,14 @@ HAL_SLACK_CHANNELMODE=""        # not yet implemented
 HAL_SLACK_LINK_NAMES=""         # not yet implemented
 ```
 
+Connecting to Slack over IRC and XMPP
+https://slack.zendesk.com/hc/en-us/articles/201727913-Connecting-to-Slack-over-IRC-and-XMPP
+
+Create a user for hal
+
+Then go here as that user, and write down the IRC credentials
+https://<team>.slack.com/account/gateways
+
 No additional configuration should be required. 
 
 ### Shell

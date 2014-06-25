@@ -27,6 +27,15 @@ func Run() int {
 		return res.Send("BAR")
 	})
 
+	// Or use the underlying hal.Listener struct...
+	var tableFlipHandler = &hal.Listener{
+		Method:  HEAR,
+		Pattern: `tableflip`,
+		Handler: func(res *hal.Response) error {
+			res.Send(`(╯°□°）╯︵ ┻━┻`)
+		},
+	}
+
 	// Or stick them in an entirely different package, and reference them
 	// exactly in the ways you would expect.
 	robot.Handle(
@@ -34,6 +43,7 @@ func Run() int {
 		scripts.SynHandler,
 		openDoorsHandler,
 		fooHandler,
+		tableFlipHandler,
 		// Or even inline!
 		hal.Hear(`yo`, func(res *hal.Response) error {
 			return res.Send("lo")

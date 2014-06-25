@@ -23,8 +23,6 @@ type SlackAdapter struct {
 func (a *SlackAdapter) Send(res *Response, strings ...string) error {
 	a.Logger.Debug("slack - sending response")
 	for _, str := range strings {
-		// _ = str
-
 		s := &slackPayload{
 			Username: a.botname,
 			Channel:  res.Message.Room,
@@ -32,38 +30,25 @@ func (a *SlackAdapter) Send(res *Response, strings ...string) error {
 		}
 
 		u := `https://` + a.team + `.slack.com/services/hooks/hubot?token=` + a.token
-		// resource := "/services/hooks/hubot"
-		// payload := `{"channel":"` + res.Room() + `","username":"` + res.UserID() + `","` + `"}`
 		payload, _ := json.Marshal(s)
 		data := url.Values{}
 		data.Set("payload", string(payload))
 
 		client := http.Client{}
-		a.Logger.Debugf("url=%s payload=%s", u, payload)
 		_, err := client.PostForm(u, data)
 		if err != nil {
 			return err
 		}
-		// http.Post(`https://`+slackHost, "application/x-www-form-urlencoded", data)
 	}
 
 	return nil
 }
 
-// func (a *SlackAdapter) sendResponse(res *Response, str string) error {
-// 	s := &slackPayload{
-// 		Username: a.botname,
-// 		Channel:  res.Message.Room,
-// 		Text:     str,
-// 	}
-// }
-
 // Reply sends a direct response
 func (a *SlackAdapter) Reply(res *Response, strings ...string) error {
 	newStrings := make([]string, len(strings))
 	for _, str := range strings {
-		newString := res.UserID() + `: ` + str
-		newStrings = append(newStrings, newString)
+		newStrings = append(newStrings, res.UserID()+`: `+str)
 	}
 
 	a.Send(res, newStrings...)
@@ -112,7 +97,6 @@ func (a *SlackAdapter) Run() error {
 
 func (a *SlackAdapter) slackHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-
 	parsedRequest := a.parseRequest(r.Form)
 	message := a.newMessage(parsedRequest)
 
@@ -164,12 +148,6 @@ type slackPayload struct {
 	IconEmoji string `json:"icon_emoji,omitempty"`
 }
 
-// type slackMessage struct {
-// 	message string
-// 	room    string
-// 	text    string
-// }
-
 // the payload of an inbound request (from Slack to us).
 type slackRequest struct {
 	ChannelID   string
@@ -182,4 +160,9 @@ type slackRequest struct {
 	Token       string
 	UserID      string
 	UserName    string
+}
+
+func (a *SlackAdapter) startIRCGateway() error {
+
+	return nil
 }

@@ -137,22 +137,22 @@ func newRouter() *http.ServeMux {
 	return router
 }
 
-func (robot *Robot) SetName(name string) {
-	robot.Name = name
-}
+// func (robot *Robot) SetName(name string) {
+// 	robot.Name = name
+// }
 
-func (robot *Robot) SetLogger(logger *logging.Logger) {
-	robot.Logger = logger
-}
+// func (robot *Robot) SetLogger(logger *logging.Logger) {
+// 	robot.Logger = logger
+// }
 
-func (robot *Robot) SetAdapter(adapter Adapter) {
-	robot.Adapter = adapter
-}
+// func (robot *Robot) SetAdapter(adapter Adapter) {
+// 	robot.Adapter = adapter
+// }
 
-func (robot *Robot) SetPort(port string) {
-	robot.Port = port
-}
+// func (robot *Robot) SetPort(port string) {
+// 	robot.Port = port
+// }
 
-func (robot *Robot) SetRouter(router *http.ServeMux) {
-	robot.Router = router
-}
+// func (robot *Robot) SetRouter(router *http.ServeMux) {
+// 	robot.Router = router
+// }
