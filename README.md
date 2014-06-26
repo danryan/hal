@@ -33,8 +33,7 @@ HAL_LOG_LEVEL=info  # The level of logging desired.
 
 ### Slack
 
-By default, Hal uses Slack's hubot integration. Currently Hal will listen in on all public channels. In the future, you'll be able to specify channels by either a whitelist or blacklist. Private groups require the IRC gateway to work around a current limitation of the Slack API. See [Using IRC](#irc-gateway). The IRC gateway is typically the prefered method as your bot will automatically join all channels and groups it belongs to, and removing Hal from a room is as simple as a `/kick hal` command.
-
+By default, Hal uses Slack's hubot integration. Currently Hal will listen in on all public channels. In the future, you'll be able to specify channels by either a whitelist or blacklist. Private groups require the IRC gateway to work around a current limitation of the Slack API. See [Using IRC](#irc-gateway). The IRC gateway is author's prefered method as your bot will automatically join all channels and groups it belongs to, and removing Hal from a room is as simple as a `/kick hal` command. Some advanced features like 
 Start by adding the Hubot integration for your team (if you haven't done so). Then, set the following environment variables when starting up your bot:
 
 ```
@@ -82,17 +81,6 @@ For more information, please see the following link:
 
 Hal comes with a default shell adapter, useful for testing your response handlers locally. It has no special configuration variables.
 
-## TODO
+## Bugs, features, rants, hate-mail, etc.
 
-### Definitely
-
-* tests :O
-* help (and help parsing)
-* documentation
-* a brain, along with adapters
-
-### Maybe
-
-* command not found handler
-* change enter/leave to join/part
-* autoregister new commands
+This section has been converted to issues. Please use (the issue tracker)[https://github.com/danryan/hal/issues) for development progress tracking, feature requests, or bug reports. Thank you! :heart:
