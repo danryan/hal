@@ -33,7 +33,7 @@ HAL_LOG_LEVEL=info  # The level of logging desired.
 
 ### Slack
 
-Hal uses Slack's hubot integration. Currently Hal will listen in on all channels. In the future, you'll be able to specify channels by either a whitelist or blacklist. In addition, private groups do not work. This is a limitation of Slack's API which may change in the future. Support for using their IRC gateway will be implemented shortly. 
+By default, Hal uses Slack's hubot integration. Currently Hal will listen in on all public channels. In the future, you'll be able to specify channels by either a whitelist or blacklist. Private groups require the IRC gateway to work around a current limitation of the Slack API. See [Using IRC](#irc-gateway). The IRC gateway is typically the prefered method as your bot will automatically join all channels and groups it belongs to, and removing Hal from a room is as simple as a `/kick hal` command.
 
 Start by adding the Hubot integration for your team (if you haven't done so). Then, set the following environment variables when starting up your bot:
 
@@ -52,15 +52,31 @@ HAL_SLACK_CHANNELMODE=""        # not yet implemented
 HAL_SLACK_LINK_NAMES=""         # not yet implemented
 ```
 
-Connecting to Slack over IRC and XMPP
-https://slack.zendesk.com/hc/en-us/articles/201727913-Connecting-to-Slack-over-IRC-and-XMPP
+#### Using IRC Gateway<a name="irc-gateway"></a>
 
-Create a user for hal
+The default integration only works with public chats. If you want hal to listen in on private chats, you must utilize the IRC gateway. You'll need a real user for hal, so be mindful of the username you choose for it and make sure you configure your bot to use that name so it can login to the IRC gateway. When enabled, hal will only use the IRC gateway to listen for messages. Hal can be configured to either respond using the API or the IRC gateway.
 
-Then go here as that user, and write down the IRC credentials
-https://<team>.slack.com/account/gateways
+1. Enable the IRC gateway in [the admin settings interface](https://revily.slack.com/admin/settings)
+    * Choose "Enable IRC gateway (SSL only)". You don't want your private messages sent unencrypted.
+2. [Register](https://my.slack.com/signup) a new user
+3. Sign in as this new user
+4. Capture your new [IRC credentials](https://my.slack.com/account/gateways)
+5. Set the following environment variables
 
-No additional configuration should be required. 
+```
+HAL_SLACK_IRC_ENABLED           # Enable the Slack IRC listener
+                                # Default: 0
+                                # Options: 0, 1  ; 0 is disabled, 1 is enabled
+HAL_SLACK_IRC_PASSWORD          # The IRC gateway password
+                                # Default: none (required)
+HAL_SLACK_RESPONSE_METHOD       # The method by which hal will respond to a message.
+                                # The irc option requires that the IRC gateway be configured
+                                # Default: http
+                                # Options: http, irc
+```
+
+For more information, please see the following link:
+* [Connecting to Slack over IRC and XMPP](https://slack.zendesk.com/hc/en-us/articles/201727913-Connecting-to-Slack-over-IRC-and-XMPP)
 
 ### Shell
 
@@ -73,6 +89,7 @@ Hal comes with a default shell adapter, useful for testing your response handler
 * tests :O
 * help (and help parsing)
 * documentation
+* a brain, along with adapters
 
 ### Maybe
 

@@ -50,7 +50,7 @@ func NewResponse(robot *Robot, msg *Message) *Response {
 // Send posts a message back to the chat source
 func (response *Response) Send(strings ...string) error {
 	if err := response.Robot.Adapter.Send(response, strings...); err != nil {
-		response.Logger.Infof("error:", err)
+		response.Logger.Error(err)
 		return err
 	}
 	// log.Println("send: no error")

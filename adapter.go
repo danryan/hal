@@ -36,12 +36,15 @@ func NewAdapter(robot *Robot) (Adapter, error) {
 
 func newSlackAdapter(robot *Robot) (Adapter, error) {
 	slack := &SlackAdapter{
-		token:    os.Getenv("HAL_SLACK_TOKEN"),
-		team:     os.Getenv("HAL_SLACK_TEAM"),
-		channels: os.Getenv("HAL_SLACK_CHANNELS"),
-		mode:     GetenvDefault("HAL_SLACK_CHANNELMODE", "blacklist"),
-		botname:  GetenvDefault("HAL_SLACK_BOTNAME", robot.Name),
-		// iconEmoji: os.Getenv("HAL_SLACK_ICON_EMOJI"),
+		token:          os.Getenv("HAL_SLACK_TOKEN"),
+		team:           os.Getenv("HAL_SLACK_TEAM"),
+		channels:       os.Getenv("HAL_SLACK_CHANNELS"),
+		mode:           GetenvDefault("HAL_SLACK_CHANNELMODE", "blacklist"),
+		botname:        GetenvDefault("HAL_SLACK_BOTNAME", robot.Name),
+		iconEmoji:      os.Getenv("HAL_SLACK_ICON_EMOJI"),
+		ircEnabled:     GetenvDefaultBool("HAL_SLACK_IRC_ENABLED", false),
+		ircPassword:    os.Getenv("HAL_SLACK_IRC_PASSWORD"),
+		responseMethod: GetenvDefault("HAL_SLACK_RESPONSE_METHOD", "http"),
 	}
 	slack.SetRobot(robot)
 	return slack, nil
@@ -49,8 +52,6 @@ func newSlackAdapter(robot *Robot) (Adapter, error) {
 
 func newShellAdapter(robot *Robot) (Adapter, error) {
 	shell := &ShellAdapter{
-		// Logger:  robot.Logger,
-		// Router:  robot.Router,
 		out:     bufio.NewWriter(os.Stdout),
 		in:      bufio.NewReader(os.Stdin),
 		runChan: make(chan bool, 1),
