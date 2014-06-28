@@ -118,13 +118,11 @@ func (a *ShellAdapter) newMessage(text string) *Message {
 func (a *ShellAdapter) writeString(str string) error {
 	msg := fmt.Sprintf("%s\n", strings.TrimSpace(str))
 
-	_, err := a.out.WriteString(msg)
-	if err != nil {
+	if _, err := a.out.WriteString(msg); err != nil {
 		return err
 	}
 
-	ferr := a.out.Flush()
-	if ferr != nil {
+	if err := a.out.Flush(); err != nil {
 		return err
 	}
 
