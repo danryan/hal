@@ -10,9 +10,9 @@ import (
 // ShellAdapter struct
 type ShellAdapter struct {
 	BasicAdapter
-	in      *bufio.Reader
-	out     *bufio.Writer
-	runChan chan bool
+	in   *bufio.Reader
+	out  *bufio.Writer
+	quit chan bool
 }
 
 // Send sends a regular response
@@ -66,37 +66,28 @@ func (a *ShellAdapter) Receive(msg *Message) error {
 // Run executes the adapter run loop
 func (a *ShellAdapter) Run() error {
 	a.run()
-	run := true
 	prompt()
-	for run {
-		line, _, err := a.in.ReadLine()
-		message := a.newMessage(string(line))
 
-		if err != nil {
-			fmt.Println("error:", err)
-		}
-		a.Receive(message)
-		prompt()
-
-		select {
-		case b := <-a.runChan:
-			switch b {
-			// case true:
-			case false:
-				run = false
+	go func() {
+		for {
+			line, _, err := a.in.ReadLine()
+			message := a.newMessage(string(line))
+			if err != nil {
+				fmt.Println("error:", err)
 			}
-		default:
-			continue
+			a.Receive(message)
+			prompt()
 		}
-	}
+	}()
 
+	<-a.quit
 	return nil
 }
 
 // Stop the adapter
 func (a *ShellAdapter) Stop() error {
 	a.preStop()
-	a.runChan <- false
+	a.quit <- true
 	a.postStop()
 	return nil
 }

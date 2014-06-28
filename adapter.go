@@ -52,9 +52,9 @@ func newSlackAdapter(robot *Robot) (Adapter, error) {
 
 func newShellAdapter(robot *Robot) (Adapter, error) {
 	shell := &ShellAdapter{
-		out:     bufio.NewWriter(os.Stdout),
-		in:      bufio.NewReader(os.Stdin),
-		runChan: make(chan bool, 1),
+		out:  bufio.NewWriter(os.Stdout),
+		in:   bufio.NewReader(os.Stdin),
+		quit: make(chan bool),
 	}
 	shell.SetRobot(robot)
 	return shell, nil
