@@ -196,7 +196,7 @@ type slackRequest struct {
 func (a *SlackAdapter) startIRCConnection() {
 	con := irc.IRC(a.botname, a.botname)
 	con.UseTLS = true
-	con.Debug = false
+	// con.Debug = true
 	con.Password = a.ircPassword
 	con.TLSConfig = &tls.Config{ServerName: "*.irc.slack.com"}
 	err := con.Connect(a.ircServer())

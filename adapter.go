@@ -59,3 +59,13 @@ func newShellAdapter(robot *Robot) (Adapter, error) {
 	shell.SetRobot(robot)
 	return shell, nil
 }
+
+func newHipchatAdapter(robot *Robot) (Adapter, error) {
+	hipchat := &HipchatAdapter{
+		jid:      os.Getenv("HAL_HIPCHAT_JID"),
+		password: os.Getenv("HAL_HIPCHAT_PASSWORD"),
+		rooms:    os.Getenv("HAL_HIPCHAT_ROOMS"),
+	}
+	hipchat.SetRobot(robot)
+	return hipchat, nil
+}

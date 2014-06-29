@@ -77,6 +77,19 @@ HAL_SLACK_RESPONSE_METHOD       # The method by which hal will respond to a mess
 For more information, please see the following link:
 * [Connecting to Slack over IRC and XMPP](https://slack.zendesk.com/hc/en-us/articles/201727913-Connecting-to-Slack-over-IRC-and-XMPP)
 
+### Hipchat
+
+Hal requires a user account to integrate with Hipchat. Be sure to one before configuring the adapter.
+
+```
+HAL_HIPCHAT_JID                 # Hipchat JID
+                                # Default: none (required)
+HAL_HIPCHAT_PASSWORD            # Hipchat password
+                                # Default: none (required)
+HAL_HIPCHAT_ROOMS               # A comma-separated list of rooms to join
+                                # Default: none (optional)
+```
+
 ### Shell
 
 Hal comes with a default shell adapter, useful for testing your response handlers locally. It has no special configuration variables.
