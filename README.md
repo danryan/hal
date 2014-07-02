@@ -96,4 +96,4 @@ Hal comes with a default shell adapter, useful for testing your response handler
 
 ## Bugs, features, rants, hate-mail, etc.
 
-This section has been converted to issues. Please use (the issue tracker)[https://github.com/danryan/hal/issues) for development progress tracking, feature requests, or bug reports. Thank you! :heart:
+This section has been converted to issues. Please use [the issue tracker](https://github.com/danryan/hal/issues) for development progress tracking, feature requests, or bug reports. Thank you! :heart:
