@@ -3,8 +3,10 @@ package hal
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"strings"
+	"syscall"
 )
 
 // ShellAdapter struct
@@ -72,7 +74,11 @@ func (a *ShellAdapter) Run() error {
 		for {
 			line, _, err := a.in.ReadLine()
 			message := a.newMessage(string(line))
+
 			if err != nil {
+				if err == io.EOF {
+					a.Robot.signalChan <- syscall.SIGTERM
+				}
 				fmt.Println("error:", err)
 			}
 			a.Receive(message)

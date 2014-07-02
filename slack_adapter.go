@@ -1,14 +1,12 @@
 package hal
 
 import (
-	// "github.com/davecgh/go-spew/spew"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	irc "github.com/thoj/go-ircevent"
 	"net/http"
 	"net/url"
-	// "strings"
 )
 
 // SlackAdapter struct

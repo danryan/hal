@@ -77,7 +77,7 @@ HAL_SLACK_RESPONSE_METHOD       # The method by which hal will respond to a mess
 For more information, please see the following link:
 * [Connecting to Slack over IRC and XMPP](https://slack.zendesk.com/hc/en-us/articles/201727913-Connecting-to-Slack-over-IRC-and-XMPP)
 
-### Hipchat
+### Hipchat (in progress)
 
 Hal requires a user account to integrate with Hipchat. Be sure to one before configuring the adapter.
 
@@ -89,6 +89,25 @@ HAL_HIPCHAT_PASSWORD            # Hipchat password
 HAL_HIPCHAT_ROOMS               # A comma-separated list of rooms to join
                                 # Default: none (optional)
 ```
+### IRC
+
+Set the following environment variables when starting up your bot:
+
+```
+HAL_ADAPTER=irc                 # The adapter
+                                # Default: shell
+HAL_IRC_USER=blah               # IRC username
+                                # Default: none (required)
+HAL_IRC_PASSWORD=sekret         # IRC password if required
+                                # Default: none (optional)
+HAL_IRC_SERVER=irc.freenode.net # IRC server
+                                # Default: none (required)
+HAL_IRC_PORT=6667               # IRC server port
+                                # Default: 6667
+HAL_IRC_CHANNELS="#foo,#bar"    # Comma-separate list of channels to join after connecting
+                                # Default: none (required)
+HAL_IRC_USE_TLS=false           # Use an encrypted connection
+```
 
 ### Shell
 
@@ -96,4 +115,4 @@ Hal comes with a default shell adapter, useful for testing your response handler
 
 ## Bugs, features, rants, hate-mail, etc.
 
-This section has been converted to issues. Please use [the issue tracker](https://github.com/danryan/hal/issues) for development progress tracking, feature requests, or bug reports. Thank you! :heart:
+Please use [the issue tracker](https://github.com/danryan/hal/issues) for development progress tracking, feature requests, or bug reports. Thank you! :heart:

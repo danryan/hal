@@ -3,7 +3,6 @@ package hal
 import (
 	"fmt"
 	"github.com/ccding/go-logging/logging"
-	// "github.com/davecgh/go-spew/spew"
 	"net/http"
 	"os"
 	"os/signal"
@@ -59,7 +58,7 @@ func (robot *Robot) Handle(handlers ...Handler) {
 
 // Receive dispatches messages to our handlers
 func (robot *Robot) Receive(msg *Message) error {
-	robot.Logger.Debug("slack - robot received message")
+	robot.Logger.Debugf("%s - robot received message", robot.Adapter.Name())
 	for _, handler := range robot.handlers {
 		response := NewResponse(robot, msg)
 		err := handler.Handle(response)
@@ -96,8 +95,6 @@ func (robot *Robot) Run() error {
 		select {
 		case sig := <-robot.signalChan:
 			switch sig {
-			// case syscall.SIGHUP:
-			// robot.Logger.Info("Reloading")
 			case syscall.SIGINT, syscall.SIGTERM:
 				stop = true
 			}
@@ -131,28 +128,16 @@ func newRouter() *http.ServeMux {
 	})
 
 	router.HandleFunc("/hal/time", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Server time is: %s\n", time.Now())
+		fmt.Fprintf(w, "Server time is: %s\n", time.Now().UTC())
 	})
 
 	return router
 }
 
-// func (robot *Robot) SetName(name string) {
-// 	robot.Name = name
-// }
-
-// func (robot *Robot) SetLogger(logger *logging.Logger) {
-// 	robot.Logger = logger
-// }
+func (robot *Robot) SetName(name string) {
+	robot.Name = name
+}
 
 func (robot *Robot) SetAdapter(adapter Adapter) {
 	robot.Adapter = adapter
 }
-
-// func (robot *Robot) SetPort(port string) {
-// 	robot.Port = port
-// }
-
-// func (robot *Robot) SetRouter(router *http.ServeMux) {
-// 	robot.Router = router
-// }

@@ -78,7 +78,7 @@ func (response *Response) Emote(strings ...string) error {
 
 // Topic posts a topic changing message
 func (response *Response) Topic(strings ...string) error {
-	if err := response.Robot.Adapter.Send(response, strings...); err != nil {
+	if err := response.Robot.Adapter.Topic(response, strings...); err != nil {
 		response.Logger.Error(err)
 		return err
 	}

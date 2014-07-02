@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"strings"
 )
 
 // Adapter interface
@@ -22,6 +23,12 @@ type Adapter interface {
 	Receive(*Message) error
 }
 
+// var Adapters []Adapter
+
+// func (a *Adapters) Add(adapter Adapter) {
+// 	a = append(a, adapter)
+// }
+
 // NewAdapter returns a new Adapter object
 func NewAdapter(robot *Robot) (Adapter, error) {
 	switch robot.AdapterName {
@@ -29,6 +36,8 @@ func NewAdapter(robot *Robot) (Adapter, error) {
 		return newShellAdapter(robot)
 	case "slack":
 		return newSlackAdapter(robot)
+	case "irc":
+		return newIRCAdapter(robot)
 	default:
 		return nil, errors.New("invalid adapter name")
 	}
@@ -68,4 +77,20 @@ func newHipchatAdapter(robot *Robot) (Adapter, error) {
 	}
 	hipchat.SetRobot(robot)
 	return hipchat, nil
+}
+
+func newIRCAdapter(robot *Robot) (Adapter, error) {
+	irc := &IRCAdapter{
+		user:     os.Getenv("HAL_IRC_USER"),
+		nick:     os.Getenv("HAL_IRC_NICK"),
+		password: os.Getenv("HAL_HIPCHAT_PASSWORD"),
+		server:   os.Getenv("HAL_IRC_SERVER"),
+		port:     GetenvDefaultInt("HAL_IRC_PORT", 6667),
+		channels: func() []string { return strings.Split(os.Getenv("HAL_IRC_CHANNELS"), ",") }(),
+		useTLS:   GetenvDefaultBool("HAL_IRC_USE_TLS", false),
+	}
+	// Set the robot name to the IRC nick so respond commands will work
+	irc.SetRobot(robot)
+	irc.Robot.SetName(irc.nick)
+	return irc, nil
 }
