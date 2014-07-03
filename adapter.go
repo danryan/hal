@@ -83,7 +83,7 @@ func newIRCAdapter(robot *Robot) (Adapter, error) {
 	irc := &IRCAdapter{
 		user:     os.Getenv("HAL_IRC_USER"),
 		nick:     os.Getenv("HAL_IRC_NICK"),
-		password: os.Getenv("HAL_HIPCHAT_PASSWORD"),
+		password: os.Getenv("HAL_IRC_PASSWORD"),
 		server:   os.Getenv("HAL_IRC_SERVER"),
 		port:     GetenvDefaultInt("HAL_IRC_PORT", 6667),
 		channels: func() []string { return strings.Split(os.Getenv("HAL_IRC_CHANNELS"), ",") }(),

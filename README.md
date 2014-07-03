@@ -100,6 +100,8 @@ HAL_IRC_USER=blah               # IRC username
                                 # Default: none (required)
 HAL_IRC_PASSWORD=sekret         # IRC password if required
                                 # Default: none (optional)
+HAL_IRC_NICK=hal                # IRC nick
+                                # Default: HAL_IRC_USER (optional)
 HAL_IRC_SERVER=irc.freenode.net # IRC server
                                 # Default: none (required)
 HAL_IRC_PORT=6667               # IRC server port
