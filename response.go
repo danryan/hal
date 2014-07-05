@@ -53,10 +53,8 @@ func (response *Response) Send(strings ...string) error {
 		response.Logger.Error(err)
 		return err
 	}
-	// log.Println("send: no error")
-
 	return nil
-}
+
 
 // Reply posts a message mentioning the current user
 func (response *Response) Reply(strings ...string) error {

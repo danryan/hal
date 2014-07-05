@@ -32,9 +32,8 @@ func (l *Listener) Handle(res *Response) error {
 	// log.Printf(`/%s/ matched "%s"`, l.String(), text)
 	res.Match = match
 
-	herr := l.Handler(res)
-	if herr != nil {
-		return herr
+	if err := l.Handler(res); err != nil {
+		return err
 	}
 	return nil
 }
