@@ -54,7 +54,7 @@ func (response *Response) Send(strings ...string) error {
 		return err
 	}
 	return nil
-
+}
 
 // Reply posts a message mentioning the current user
 func (response *Response) Reply(strings ...string) error {
