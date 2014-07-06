@@ -6,7 +6,7 @@ A chat bot in Go, now with 100% less CoffeeScript!
 
 "Good morning, Dr. Chandra. This is HAL. I'm ready for my first lesson."
 
-Hal is Go all the way down, and uses standard packages wherever possible. It's a bit rough around the edges right now. For an idea of how you can use it, look at [a simple example](examples/simple/main.go), or [a more complex example](examples/complex/main.go). API Documentation is available [here](http://godoc.org/github.com/danryan/hal).
+Hal is Go all the way down, and uses standard packages wherever possible. For an idea of how you can use it, look at [a simple example](examples/simple/main.go), or [a more complex example](examples/complex/main.go). API Documentation is available [here](http://godoc.org/github.com/danryan/hal).
 
 ## Is it any good?
 
@@ -14,7 +14,7 @@ Hal is Go all the way down, and uses standard packages wherever possible. It's a
 
 ## Configuration
 
-Hal doesn't have any command line options, instead opting to use environment variables exclusively.
+Hal doesn't have any command line options; instead we utilize environment variables exclusively.
 
 ```
 PORT=9000           # The port on which the HTTP server will listen.
@@ -23,7 +23,7 @@ HAL_NAME=hal        # The name to which Hal will respond.
                     # Default: hal
 HAL_ADAPTER=shell   # The adapter name.
                     # Default: shell
-                    # Options: shell, slack
+                    # Options: shell, slack, irc
 HAL_LOG_LEVEL=info  # The level of logging desired.
                     # Default: info
                     # Options: info, debug, warn, error, critical
@@ -33,7 +33,13 @@ HAL_LOG_LEVEL=info  # The level of logging desired.
 
 ### Slack
 
-By default, Hal uses Slack's hubot integration. Currently Hal will listen in on all public channels. In the future, you'll be able to specify channels by either a whitelist or blacklist. Private groups require the IRC gateway to work around a current limitation of the Slack API. See [Using IRC](#irc-gateway). The IRC gateway is author's prefered method as your bot will automatically join all channels and groups it belongs to, and removing Hal from a room is as simple as a `/kick hal` command. Some advanced features like 
+```go
+// blank import to register adapter
+import _ "github.com/danryan/hal/adapters/slack"
+```
+
+By default, Hal uses Slack's hubot integration. Currently Hal will listen in on all public channels. In the future, you'll be able to specify channels by either a whitelist or blacklist. Private groups require the IRC gateway to work around a current limitation of the Slack API. See [Using IRC](#irc-gateway). The IRC gateway is author's prefered method as your bot will automatically join all channels and groups it belongs to, and removing Hal from a room is as simple as a `/kick hal` command. Some advanced features like attachment uploading are not supported at this time.
+
 Start by adding the Hubot integration for your team (if you haven't done so). Then, set the following environment variables when starting up your bot:
 
 ```
@@ -79,6 +85,11 @@ For more information, please see the following link:
 
 ### Hipchat (in progress)
 
+```go
+// blank import to register adapter
+import _ "github.com/danryan/hal/adapters/hipchat"
+```
+
 Hal requires a user account to integrate with Hipchat. Be sure to one before configuring the adapter.
 
 ```
@@ -90,6 +101,11 @@ HAL_HIPCHAT_ROOMS               # A comma-separated list of rooms to join
                                 # Default: none (optional)
 ```
 ### IRC
+
+```go
+// blank import to register adapter
+import _ "github.com/danryan/hal/adapters/irc"
+```
 
 Set the following environment variables when starting up your bot:
 
@@ -112,6 +128,11 @@ HAL_IRC_USE_TLS=false           # Use an encrypted connection
 ```
 
 ### Shell
+
+```go
+// blank import to register adapter
+import _ "github.com/danryan/hal/adapters/shell"
+```
 
 Hal comes with a default shell adapter, useful for testing your response handlers locally. It has no special configuration variables.
 
