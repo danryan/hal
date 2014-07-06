@@ -45,9 +45,9 @@ Start by adding the Hubot integration for your team (if you haven't done so). Th
 ```
 HAL_ADAPTER=slack               # The adapter
 HAL_SLACK_TOKEN=blah            # Your integration token
-                                # Default: none
+                                # Default: none (required)
 HAL_SLACK_TEAM=acmeinc          # Your Slack subdomain (<team>.slack.com)
-                                # Default: none
+                                # Default: none (required)
 HAL_SLACK_BOTNAME=HAL           # The username Hal will send replies as
                                 # Default: HAL_NAME
 HAL_SLACK_ICON_EMOJI=":poop:"   # The emoji shortcut used as the response icon
