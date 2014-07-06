@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	_ "syscall"
 )
 
 func init() {

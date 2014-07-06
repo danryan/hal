@@ -2,6 +2,7 @@ package hal
 
 import (
 	"fmt"
+	"net/http"
 )
 
 // Adapter interface
@@ -26,8 +27,6 @@ type adapter struct {
 	newFunc  func(*Robot) (Adapter, error)
 	sendChan chan *Response
 	recvChan chan *Message
-	receive  func(Responder) (Message, error)
-	send     func(Responder) (Response, error)
 }
 
 // Adapters is a map of registered adapters
@@ -52,4 +51,52 @@ func RegisterAdapter(name string, newFunc func(*Robot) (Adapter, error)) {
 		name:    name,
 		newFunc: newFunc,
 	}
+}
+
+// BasicAdapter declares common functions shared by all adapters
+type BasicAdapter struct {
+	*Robot
+}
+
+func (a *BasicAdapter) SetRobot(r *Robot) {
+	a.Robot = r
+}
+
+func (a *BasicAdapter) preRun() {
+	a.Logger.Infof("Starting %s adapter.", a)
+	// TODO: probably not useful for production
+	a.Robot.Router.HandleFunc("/hal/adapter", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "%s\n", a)
+	})
+}
+
+func (a *BasicAdapter) postRun() {
+	a.Logger.Infof("Started %s adapter.", a)
+}
+
+func (a *BasicAdapter) run() {
+	a.preRun()
+	a.postRun()
+}
+
+func (a *BasicAdapter) preStop() {
+	fmt.Println() // so we don't break up the log formatting :)
+	a.Logger.Infof("Stopping %s adapter.", a)
+}
+
+func (a *BasicAdapter) postStop() {
+	a.Logger.Infof("Stopped %s adapter.", a)
+}
+
+func (a *BasicAdapter) stop() {
+	a.preStop()
+	a.postStop()
+}
+
+func (a *BasicAdapter) String() string {
+	return a.Robot.Adapter.Name()
+}
+
+func (a *BasicAdapter) Name() string {
+	return "basic"
 }
