@@ -59,7 +59,7 @@ func New(robot *hal.Robot) (hal.Adapter, error) {
 
 // Send sends a regular response
 func (a *adapter) Send(res *hal.Response, strings ...string) error {
-	a.Logger.Debug("irc - sending IRC response")
+	hal.Logger.Debug("irc - sending IRC response")
 	for _, str := range strings {
 		s := &ircPayload{
 			Channel: res.Message.Room,
@@ -67,7 +67,7 @@ func (a *adapter) Send(res *hal.Response, strings ...string) error {
 		}
 		a.conn.Privmsg(s.Channel, s.Text)
 	}
-	a.Logger.Debug("irc - sent IRC response")
+	hal.Logger.Debug("irc - sent IRC response")
 	return nil
 }
 
@@ -103,9 +103,9 @@ func (a *adapter) Play(res *hal.Response, strings ...string) error {
 
 // Receive forwards a message to the robot
 func (a *adapter) Receive(msg *hal.Message) error {
-	a.Logger.Debug("irc - adapter received message")
+	hal.Logger.Debug("irc - adapter received message")
 	a.Robot.Receive(msg)
-	a.Logger.Debug("irc - adapter sent message to robot")
+	hal.Logger.Debug("irc - adapter sent message to robot")
 
 	return nil
 }
@@ -113,18 +113,18 @@ func (a *adapter) Receive(msg *hal.Message) error {
 // Run starts the adapter
 func (a *adapter) Run() error {
 	// set up a connection to the IRC gateway
-	a.Logger.Debug("irc - starting IRC connection")
+	hal.Logger.Debug("irc - starting IRC connection")
 	go a.startIRCConnection()
-	a.Logger.Debug("irc - started IRC connection")
+	hal.Logger.Debug("irc - started IRC connection")
 
 	return nil
 }
 
 // Stop shuts down the adapter
 func (a *adapter) Stop() error {
-	a.Logger.Debug("irc - stopping IRC connection")
+	hal.Logger.Debug("irc - stopping IRC connection")
 	a.stopIRCConnection()
-	a.Logger.Debug("irc - stopped IRC connection")
+	hal.Logger.Debug("irc - stopped IRC connection")
 
 	return nil
 }
@@ -160,7 +160,7 @@ func (a *adapter) startIRCConnection() {
 		conn.TLSConfig = &tls.Config{ServerName: a.server}
 	}
 	conn.Password = a.password
-	conn.Debug = (a.Logger.Level() == 10)
+	conn.Debug = (hal.Logger.Level() == 10)
 
 	err := conn.Connect(a.connectionString())
 	if err != nil {
@@ -170,7 +170,7 @@ func (a *adapter) startIRCConnection() {
 	conn.AddCallback("001", func(e *irc.Event) {
 		for _, channel := range a.channels {
 			conn.Join(channel)
-			a.Logger.Debug("irc - joined " + channel)
+			hal.Logger.Debug("irc - joined " + channel)
 		}
 	})
 
@@ -180,14 +180,14 @@ func (a *adapter) startIRCConnection() {
 	})
 
 	a.conn = conn
-	a.Logger.Debug("irc - waiting for server acknowledgement")
+	hal.Logger.Debug("irc - waiting for server acknowledgement")
 	conn.Loop()
 }
 
 func (a *adapter) stopIRCConnection() {
-	a.Logger.Debug("Stopping irc IRC connection")
+	hal.Logger.Debug("Stopping irc IRC connection")
 	a.conn.Quit()
-	a.Logger.Debug("Stopped irc IRC connection")
+	hal.Logger.Debug("Stopped irc IRC connection")
 }
 
 func (a *adapter) connectionString() string {

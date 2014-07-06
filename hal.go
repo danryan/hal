@@ -1,16 +1,19 @@
 package hal
 
-import (
-	_ "errors"
-	_ "regexp"
-)
-
+// Listener constants
 const (
 	HEAR    = "HEAR"
 	RESPOND = "RESPOND"
 	TOPIC   = "TOPIC"
 	ENTER   = "ENTER"
 	LEAVE   = "LEAVE"
+)
+
+var (
+	// Config is a global config object
+	Config = newConfig()
+	// Logger is a global logger object
+	Logger = newLogger()
 )
 
 // New returns a Robot instance.

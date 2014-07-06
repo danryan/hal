@@ -63,7 +63,7 @@ func (a *BasicAdapter) SetRobot(r *Robot) {
 }
 
 func (a *BasicAdapter) preRun() {
-	a.Logger.Infof("Starting %s adapter.", a)
+	Logger.Infof("Starting %s adapter.", a)
 	// TODO: probably not useful for production
 	a.Robot.Router.HandleFunc("/hal/adapter", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s\n", a)
@@ -71,7 +71,7 @@ func (a *BasicAdapter) preRun() {
 }
 
 func (a *BasicAdapter) postRun() {
-	a.Logger.Infof("Started %s adapter.", a)
+	Logger.Infof("Started %s adapter.", a)
 }
 
 func (a *BasicAdapter) run() {
@@ -81,11 +81,11 @@ func (a *BasicAdapter) run() {
 
 func (a *BasicAdapter) preStop() {
 	fmt.Println() // so we don't break up the log formatting :)
-	a.Logger.Infof("Stopping %s adapter.", a)
+	Logger.Infof("Stopping %s adapter.", a)
 }
 
 func (a *BasicAdapter) postStop() {
-	a.Logger.Infof("Stopped %s adapter.", a)
+	Logger.Infof("Stopped %s adapter.", a)
 }
 
 func (a *BasicAdapter) stop() {

@@ -113,9 +113,9 @@ func (a *adapter) Play(res *hal.Response, strings ...string) error {
 
 // Receive forwards a message to the robot
 func (a *adapter) Receive(msg *hal.Message) error {
-	a.Logger.Debug("slack - adapter received message")
+	hal.Logger.Debug("slack - adapter received message")
 	a.Robot.Receive(msg)
-	a.Logger.Debug("slack - adapter sent message to robot")
+	hal.Logger.Debug("slack - adapter sent message to robot")
 
 	return nil
 }
@@ -124,29 +124,29 @@ func (a *adapter) Receive(msg *hal.Message) error {
 func (a *adapter) Run() error {
 	if a.ircEnabled {
 		// set up a connection to the IRC gateway
-		a.Logger.Debug("slack - starting IRC connection")
+		hal.Logger.Debug("slack - starting IRC connection")
 		go a.startIRCConnection()
-		a.Logger.Debug("slack - started IRC connection")
+		hal.Logger.Debug("slack - started IRC connection")
 	} else {
 		// set up handlers
-		a.Logger.Debug("slack - adding HTTP request handlers")
+		hal.Logger.Debug("slack - adding HTTP request handlers")
 		a.Router.HandleFunc("/hal/slack-webhook", a.slackHandler)
 		// Someday we won't need this :D
 		a.Router.HandleFunc("/hubot/slack-webhook", a.slackHandler)
-		a.Logger.Debug("slack - added HTTP request handlers")
+		hal.Logger.Debug("slack - added HTTP request handlers")
 	}
 
 	return nil
 }
 
 func (a *adapter) slackHandler(w http.ResponseWriter, r *http.Request) {
-	a.Logger.Debug("slack - HTTP handler received message")
+	hal.Logger.Debug("slack - HTTP handler received message")
 
 	r.ParseForm()
 	parsedRequest := a.parseRequest(r.Form)
 	message := a.newMessageFromHTTP(parsedRequest)
 
-	// a.Logger.Debug(message)
+	// hal.Logger.Debug(message)
 	a.Receive(message)
 	w.Write([]byte(""))
 }
@@ -155,9 +155,9 @@ func (a *adapter) slackHandler(w http.ResponseWriter, r *http.Request) {
 func (a *adapter) Stop() error {
 	if a.ircEnabled {
 		// set up a connection to the IRC gateway
-		a.Logger.Debug("slack - stopping IRC connection")
+		hal.Logger.Debug("slack - stopping IRC connection")
 		a.stopIRCConnection()
-		a.Logger.Debug("slack - stopped IRC connection")
+		hal.Logger.Debug("slack - stopped IRC connection")
 	}
 	return nil
 }
@@ -236,12 +236,12 @@ func (a *adapter) startIRCConnection() {
 
 	con.AddCallback("001", func(e *irc.Event) {
 		for _, channel := range a.channels {
-			a.Logger.Info(channel)
+			hal.Logger.Info(channel)
 		}
 	})
 
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		a.Logger.Debug("slack - IRC handler received message")
+		hal.Logger.Debug("slack - IRC handler received message")
 
 		message := a.newMessageFromIRC(e)
 		a.Receive(message)
@@ -252,9 +252,9 @@ func (a *adapter) startIRCConnection() {
 }
 
 func (a *adapter) stopIRCConnection() {
-	a.Logger.Debug("Stopping slack IRC connection")
+	hal.Logger.Debug("Stopping slack IRC connection")
 	a.ircConnection.Quit()
-	a.Logger.Debug("Stopped slack IRC connection")
+	hal.Logger.Debug("Stopped slack IRC connection")
 }
 
 func (a *adapter) ircServer() string {
@@ -262,7 +262,7 @@ func (a *adapter) ircServer() string {
 }
 
 func (a *adapter) sendHTTP(res *hal.Response, strings ...string) error {
-	a.Logger.Debug("slack - sending HTTP response")
+	hal.Logger.Debug("slack - sending HTTP response")
 	for _, str := range strings {
 		s := &slackPayload{
 			Username: a.botname,
@@ -286,7 +286,7 @@ func (a *adapter) sendHTTP(res *hal.Response, strings ...string) error {
 }
 
 func (a *adapter) sendIRC(res *hal.Response, strings ...string) error {
-	a.Logger.Debug("slack - sending IRC response")
+	hal.Logger.Debug("slack - sending IRC response")
 	for _, str := range strings {
 		s := &slackPayload{
 			Channel: res.Message.Room,

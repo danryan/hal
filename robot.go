@@ -16,7 +16,6 @@ type Robot struct {
 	Name    string
 	Alias   string
 	Adapter Adapter
-	Logger  *logging.Logger
 	Port    string
 	Router  *http.ServeMux
 
@@ -34,8 +33,6 @@ func NewRobot() (*Robot, error) {
 	config := NewConfig()
 	robot := &Robot{
 		Name:       config.Name,
-		Logger:     config.Logger,
-		Port:       config.Port,
 		Config:     config,
 		Router:     newRouter(),
 		signalChan: make(chan os.Signal, 1),
@@ -43,7 +40,7 @@ func NewRobot() (*Robot, error) {
 
 	adapter, err := NewAdapter(robot)
 	if err != nil {
-		robot.Logger.Error(err)
+		Logger.Error(err)
 		return nil, err
 	}
 	robot.SetAdapter(adapter)
@@ -58,12 +55,12 @@ func (robot *Robot) Handle(handlers ...Handler) {
 
 // Receive dispatches messages to our handlers
 func (robot *Robot) Receive(msg *Message) error {
-	robot.Logger.Debugf("%s - robot received message", robot.Adapter.Name())
+	Logger.Debugf("%s - robot received message", robot.Adapter.Name())
 	for _, handler := range robot.handlers {
 		response := NewResponse(robot, msg)
 		err := handler.Handle(response)
 		if err != nil {
-			robot.Logger.Error(err)
+			Logger.Error(err)
 			return err
 		}
 	}
@@ -73,7 +70,7 @@ func (robot *Robot) Receive(msg *Message) error {
 // Stop initiates the shutdown process
 func (robot *Robot) Stop() error {
 	robot.Adapter.Stop()
-	robot.Logger.Info("Stopping robot.")
+	Logger.Info("stopping robot")
 
 	return nil
 }
@@ -81,11 +78,11 @@ func (robot *Robot) Stop() error {
 // Run initiates the startup process
 func (robot *Robot) Run() error {
 
-	robot.Logger.Info("Starting robot.")
+	Logger.Info("starting robot")
 	go robot.Adapter.Run()
 	// Start the HTTP server after the adapter, as adapter.Run() adds additional
 	// handlers to the router.
-	robot.Logger.Debug("Starting HTTP server. ")
+	Logger.Debug("starting HTTP server")
 	go http.ListenAndServe(`:`+robot.Port, robot.Router)
 
 	signal.Notify(robot.signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
