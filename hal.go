@@ -10,10 +10,12 @@ const (
 )
 
 var (
-	// Config is a global config object
+	// Config is a global config
 	Config = newConfig()
-	// Logger is a global logger object
+	// Logger is a global logger
 	Logger = newLogger()
+	// Router is a global HTTP muxer
+	Router = newRouter()
 )
 
 // New returns a Robot instance.

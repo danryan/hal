@@ -2,7 +2,6 @@ package hal
 
 import (
 	"fmt"
-	"github.com/ccding/go-logging/logging"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,7 +11,6 @@ import (
 
 // Robot receives messages from an adapter and sends them to listeners
 type Robot struct {
-	*Config
 	Name    string
 	Alias   string
 	Adapter Adapter
@@ -30,10 +28,8 @@ func (robot *Robot) Handlers() []Handler {
 
 // NewRobot returns a new Robot instance
 func NewRobot() (*Robot, error) {
-	config := NewConfig()
 	robot := &Robot{
-		Name:       config.Name,
-		Config:     config,
+		Name:       Config.Name,
 		Router:     newRouter(),
 		signalChan: make(chan os.Signal, 1),
 	}
@@ -69,6 +65,7 @@ func (robot *Robot) Receive(msg *Message) error {
 
 // Stop initiates the shutdown process
 func (robot *Robot) Stop() error {
+	fmt.Println() // so we don't break up the log formatting when running interactively ;)
 	robot.Adapter.Stop()
 	Logger.Info("stopping robot")
 

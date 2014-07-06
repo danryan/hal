@@ -34,11 +34,12 @@ var Adapters = map[string]adapter{}
 
 // NewAdapter creates a new initialized adapter
 func NewAdapter(robot *Robot) (Adapter, error) {
-	if _, ok := Adapters[robot.AdapterName]; !ok {
-		return nil, fmt.Errorf("%s is not a registered adapter", robot.AdapterName)
+	name := Config.AdapterName
+	if _, ok := Adapters[name]; !ok {
+		return nil, fmt.Errorf("%s is not a registered adapter", Config.AdapterName)
 	}
 
-	adapter, err := Adapters[robot.AdapterName].newFunc(robot)
+	adapter, err := Adapters[name].newFunc(robot)
 	if err != nil {
 		return nil, err
 	}
