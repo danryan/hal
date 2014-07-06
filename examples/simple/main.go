@@ -22,9 +22,9 @@ func main() {
 }
 
 func Run() int {
-	robot, newErr := hal.NewRobot()
-	if newErr != nil {
-		log.Println(newErr)
+	robot, err := hal.NewRobot()
+	if err != nil {
+		log.Println(err)
 		return 1
 	}
 
@@ -33,9 +33,8 @@ func Run() int {
 		openDoorsHandler,
 	)
 
-	runErr := robot.Run()
-	if runErr != nil {
-		log.Println(runErr)
+	if err := robot.Run(); err != nil {
+		log.Println(err)
 		return 1
 	}
 	return 0

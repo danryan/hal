@@ -63,6 +63,7 @@ func (robot *Robot) Receive(msg *Message) error {
 func (robot *Robot) Run() error {
 
 	Logger.Info("starting robot")
+	Logger.Infof("starting %s adapter", Config.AdapterName)
 	go robot.Adapter.Run()
 	// Start the HTTP server after the adapter, as adapter.Run() adds additional
 	// handlers to the router.
@@ -93,6 +94,8 @@ func (robot *Robot) Run() error {
 // Stop initiates the shutdown process
 func (robot *Robot) Stop() error {
 	fmt.Println() // so we don't break up the log formatting when running interactively ;)
+	Logger.Infof("stopping %s adapter", Config.AdapterName)
+
 	robot.Adapter.Stop()
 	Logger.Info("stopping robot")
 

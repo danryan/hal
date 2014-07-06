@@ -82,7 +82,6 @@ func (a *adapter) Receive(msg *hal.Message) error {
 
 // Run executes the adapter run loop
 func (a *adapter) Run() error {
-	// a.run()
 	prompt()
 
 	go func() {
@@ -108,9 +107,7 @@ func (a *adapter) Run() error {
 
 // Stop the adapter
 func (a *adapter) Stop() error {
-	// a.preStop()
 	a.quit <- true
-	// a.postStop()
 	return nil
 }
 

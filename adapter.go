@@ -2,7 +2,6 @@ package hal
 
 import (
 	"fmt"
-	"net/http"
 )
 
 // Adapter interface
@@ -59,39 +58,9 @@ type BasicAdapter struct {
 	*Robot
 }
 
+// SetRobot sets the adapter's Robot
 func (a *BasicAdapter) SetRobot(r *Robot) {
 	a.Robot = r
-}
-
-func (a *BasicAdapter) preRun() {
-	Logger.Infof("Starting %s adapter.", a)
-	// TODO: probably not useful for production
-	Router.HandleFunc("/hal/adapter", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "%s\n", a)
-	})
-}
-
-func (a *BasicAdapter) postRun() {
-	Logger.Infof("Started %s adapter.", a)
-}
-
-func (a *BasicAdapter) run() {
-	a.preRun()
-	a.postRun()
-}
-
-func (a *BasicAdapter) preStop() {
-	fmt.Println() // so we don't break up the log formatting :)
-	Logger.Infof("Stopping %s adapter.", a)
-}
-
-func (a *BasicAdapter) postStop() {
-	Logger.Infof("Stopped %s adapter.", a)
-}
-
-func (a *BasicAdapter) stop() {
-	a.preStop()
-	a.postStop()
 }
 
 func (a *BasicAdapter) String() string {
