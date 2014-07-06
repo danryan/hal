@@ -1,8 +1,10 @@
 package hal
 
 import (
+	"fmt"
 	"github.com/ccding/go-logging/logging"
 	"github.com/danryan/env"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -29,4 +31,18 @@ func newLogger() *logging.Logger {
 	level := logging.GetLevelValue(levelStr)
 	logger, _ := logging.WriterLogger("hal", level, format, timeFormat, os.Stdout, true)
 	return logger
+}
+
+// newRouter initializes a new http.ServeMux and sets up several default routes
+func newRouter() *http.ServeMux {
+	router := http.NewServeMux()
+	router.HandleFunc("/hal/ping", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "PONG")
+	})
+
+	router.HandleFunc("/hal/time", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Server time is: %s\n", time.Now().UTC())
+	})
+
+	return router
 }

@@ -130,9 +130,9 @@ func (a *adapter) Run() error {
 	} else {
 		// set up handlers
 		hal.Logger.Debug("slack - adding HTTP request handlers")
-		a.Router.HandleFunc("/hal/slack-webhook", a.slackHandler)
+		hal.Router.HandleFunc("/hal/slack-webhook", a.slackHandler)
 		// Someday we won't need this :D
-		a.Router.HandleFunc("/hubot/slack-webhook", a.slackHandler)
+		hal.Router.HandleFunc("/hubot/slack-webhook", a.slackHandler)
 		hal.Logger.Debug("slack - added HTTP request handlers")
 	}
 

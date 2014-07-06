@@ -66,7 +66,7 @@ func (a *BasicAdapter) SetRobot(r *Robot) {
 func (a *BasicAdapter) preRun() {
 	Logger.Infof("Starting %s adapter.", a)
 	// TODO: probably not useful for production
-	a.Robot.Router.HandleFunc("/hal/adapter", func(w http.ResponseWriter, r *http.Request) {
+	Router.HandleFunc("/hal/adapter", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s\n", a)
 	})
 }
