@@ -2,23 +2,17 @@ package hal
 
 import (
 	"fmt"
-	"github.com/ccding/go-logging/logging"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 // Robot receives messages from an adapter and sends them to listeners
 type Robot struct {
-	*Config
 	Name    string
 	Alias   string
 	Adapter Adapter
-	Logger  *logging.Logger
-	Port    string
-	Router  *http.ServeMux
 
 	handlers   []Handler
 	signalChan chan os.Signal
@@ -31,19 +25,14 @@ func (robot *Robot) Handlers() []Handler {
 
 // NewRobot returns a new Robot instance
 func NewRobot() (*Robot, error) {
-	config := NewConfig()
 	robot := &Robot{
-		Name:       config.Name,
-		Logger:     config.Logger,
-		Port:       config.Port,
-		Config:     config,
-		Router:     newRouter(),
+		Name:       Config.Name,
 		signalChan: make(chan os.Signal, 1),
 	}
 
 	adapter, err := NewAdapter(robot)
 	if err != nil {
-		robot.Logger.Error(err)
+		Logger.Error(err)
 		return nil, err
 	}
 	robot.SetAdapter(adapter)
@@ -58,35 +47,28 @@ func (robot *Robot) Handle(handlers ...Handler) {
 
 // Receive dispatches messages to our handlers
 func (robot *Robot) Receive(msg *Message) error {
-	robot.Logger.Debugf("%s - robot received message", robot.Adapter.Name())
+	Logger.Debugf("%s - robot received message", Config.AdapterName)
 	for _, handler := range robot.handlers {
 		response := NewResponse(robot, msg)
 		err := handler.Handle(response)
 		if err != nil {
-			robot.Logger.Error(err)
+			Logger.Error(err)
 			return err
 		}
 	}
 	return nil
 }
 
-// Stop initiates the shutdown process
-func (robot *Robot) Stop() error {
-	robot.Adapter.Stop()
-	robot.Logger.Info("Stopping robot.")
-
-	return nil
-}
-
 // Run initiates the startup process
 func (robot *Robot) Run() error {
 
-	robot.Logger.Info("Starting robot.")
+	Logger.Info("starting robot")
+	Logger.Infof("starting %s adapter", Config.AdapterName)
 	go robot.Adapter.Run()
 	// Start the HTTP server after the adapter, as adapter.Run() adds additional
 	// handlers to the router.
-	robot.Logger.Debug("Starting HTTP server. ")
-	go http.ListenAndServe(`:`+robot.Port, robot.Router)
+	Logger.Debug("starting HTTP server")
+	go http.ListenAndServe(`:`+string(Config.Port), Router)
 
 	signal.Notify(robot.signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
@@ -109,6 +91,17 @@ func (robot *Robot) Run() error {
 	return nil
 }
 
+// Stop initiates the shutdown process
+func (robot *Robot) Stop() error {
+	fmt.Println() // so we don't break up the log formatting when running interactively ;)
+	Logger.Infof("stopping %s adapter", Config.AdapterName)
+
+	robot.Adapter.Stop()
+	Logger.Info("stopping robot")
+
+	return nil
+}
+
 func (robot *Robot) respondRegex(pattern string) string {
 	str := `^(?:`
 	if robot.Alias != "" {
@@ -120,24 +113,12 @@ func (robot *Robot) respondRegex(pattern string) string {
 	return str
 }
 
-// newRouter initializes a new http.ServeMux and sets up several default routes
-func newRouter() *http.ServeMux {
-	router := http.NewServeMux()
-	router.HandleFunc("/hal/ping", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "PONG")
-	})
-
-	router.HandleFunc("/hal/time", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Server time is: %s\n", time.Now().UTC())
-	})
-
-	return router
-}
-
+// SetName sets robot's name
 func (robot *Robot) SetName(name string) {
 	robot.Name = name
 }
 
+// SetAdapter sets robot's adapter
 func (robot *Robot) SetAdapter(adapter Adapter) {
 	robot.Adapter = adapter
 }

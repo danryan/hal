@@ -1,24 +1,39 @@
-package hal
+package shell
 
 import (
 	"bufio"
 	"fmt"
+	"github.com/danryan/hal"
 	"io"
 	"log"
+	"os"
 	"strings"
-	"syscall"
 )
 
-// ShellAdapter struct
-type ShellAdapter struct {
-	BasicAdapter
+func init() {
+	hal.RegisterAdapter("shell", New)
+}
+
+type adapter struct {
+	hal.BasicAdapter
 	in   *bufio.Reader
 	out  *bufio.Writer
 	quit chan bool
 }
 
+// New returns an initialized adapter
+func New(r *hal.Robot) (hal.Adapter, error) {
+	a := &adapter{
+		out:  bufio.NewWriter(os.Stdout),
+		in:   bufio.NewReader(os.Stdin),
+		quit: make(chan bool),
+	}
+	a.SetRobot(r)
+	return a, nil
+}
+
 // Send sends a regular response
-func (a *ShellAdapter) Send(res *Response, strings ...string) error {
+func (a *adapter) Send(res *hal.Response, strings ...string) error {
 	for _, str := range strings {
 		err := a.writeString(str)
 		if err != nil {
@@ -31,7 +46,7 @@ func (a *ShellAdapter) Send(res *Response, strings ...string) error {
 }
 
 // Reply sends a direct response
-func (a *ShellAdapter) Reply(res *Response, strings ...string) error {
+func (a *adapter) Reply(res *hal.Response, strings ...string) error {
 	for _, str := range strings {
 		s := res.UserID() + `: ` + str
 		err := a.writeString(s)
@@ -45,29 +60,28 @@ func (a *ShellAdapter) Reply(res *Response, strings ...string) error {
 }
 
 // Emote performs an emote
-func (a *ShellAdapter) Emote(res *Response, strings ...string) error {
+func (a *adapter) Emote(res *hal.Response, strings ...string) error {
 	return nil
 }
 
 // Topic sets the topic
-func (a *ShellAdapter) Topic(res *Response, strings ...string) error {
+func (a *adapter) Topic(res *hal.Response, strings ...string) error {
 	return nil
 }
 
 // Play plays a sound
-func (a *ShellAdapter) Play(res *Response, strings ...string) error {
+func (a *adapter) Play(res *hal.Response, strings ...string) error {
 	return nil
 }
 
 // Receive forwards a message to the robot
-func (a *ShellAdapter) Receive(msg *Message) error {
+func (a *adapter) Receive(msg *hal.Message) error {
 	a.Robot.Receive(msg)
 	return nil
 }
 
 // Run executes the adapter run loop
-func (a *ShellAdapter) Run() error {
-	a.run()
+func (a *adapter) Run() error {
 	prompt()
 
 	go func() {
@@ -77,7 +91,8 @@ func (a *ShellAdapter) Run() error {
 
 			if err != nil {
 				if err == io.EOF {
-					a.Robot.signalChan <- syscall.SIGTERM
+					break
+					// a.Robot.signalChan <- syscall.SIGTERM
 				}
 				fmt.Println("error:", err)
 			}
@@ -91,10 +106,8 @@ func (a *ShellAdapter) Run() error {
 }
 
 // Stop the adapter
-func (a *ShellAdapter) Stop() error {
-	a.preStop()
+func (a *adapter) Stop() error {
 	a.quit <- true
-	a.postStop()
 	return nil
 }
 
@@ -103,16 +116,16 @@ func prompt() {
 }
 
 // func newMessage(text string) *Message {
-func (a *ShellAdapter) newMessage(text string) *Message {
-	return &Message{
+func (a *adapter) newMessage(text string) *hal.Message {
+	return &hal.Message{
 		ID:   "local-message",
-		User: &User{ID: "shell"},
+		User: &hal.User{ID: "shell"},
 		Room: "shell",
 		Text: text,
 	}
 }
 
-func (a *ShellAdapter) writeString(str string) error {
+func (a *adapter) writeString(str string) error {
 	msg := fmt.Sprintf("%s\n", strings.TrimSpace(str))
 
 	if _, err := a.out.WriteString(msg); err != nil {
@@ -126,6 +139,6 @@ func (a *ShellAdapter) writeString(str string) error {
 	return nil
 }
 
-func (a *ShellAdapter) Name() string {
+func (a *adapter) Name() string {
 	return "shell"
 }
