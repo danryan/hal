@@ -2,6 +2,9 @@ package main
 
 import (
 	"github.com/danryan/hal"
+	_ "github.com/danryan/hal/adapter/irc"
+	_ "github.com/danryan/hal/adapter/shell"
+	_ "github.com/danryan/hal/adapter/slack"
 	"log"
 	"os"
 )
