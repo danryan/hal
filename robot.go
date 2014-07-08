@@ -1,6 +1,7 @@
 package hal
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,11 +11,12 @@ import (
 
 // Robot receives messages from an adapter and sends them to listeners
 type Robot struct {
-	Name    string
-	Alias   string
-	Adapter Adapter
-
+	Name       string
+	Alias      string
+	Adapter    Adapter
+	Store      Store
 	handlers   []Handler
+	users      map[string]User
 	signalChan chan os.Signal
 }
 
@@ -37,6 +39,13 @@ func NewRobot() (*Robot, error) {
 	}
 	robot.SetAdapter(adapter)
 
+	store, err := NewStore(robot)
+	if err != nil {
+		Logger.Error(err)
+		return nil, err
+	}
+	robot.SetStore(store)
+
 	return robot, nil
 }
 
@@ -48,6 +57,20 @@ func (robot *Robot) Handle(handlers ...Handler) {
 // Receive dispatches messages to our handlers
 func (robot *Robot) Receive(msg *Message) error {
 	Logger.Debugf("%s - robot received message", Config.AdapterName)
+
+	// check if we've seen this user yet, and add if we haven't.
+	users, err := robot.Users()
+	if err != nil {
+		return err
+	}
+
+	user := msg.User
+	if _, err := users.Get(user.ID); err != nil {
+		Logger.Debug(err)
+		users.Set(user.ID, user)
+		robot.SetUsers(users)
+	}
+
 	for _, handler := range robot.handlers {
 		response := NewResponse(robot, msg)
 		err := handler.Handle(response)
@@ -61,10 +84,14 @@ func (robot *Robot) Receive(msg *Message) error {
 
 // Run initiates the startup process
 func (robot *Robot) Run() error {
-
 	Logger.Info("starting robot")
+	Logger.Infof("opening %s store connection", Config.StoreName)
+	// Cheating.
+	go robot.Store.Open()
+
 	Logger.Infof("starting %s adapter", Config.AdapterName)
 	go robot.Adapter.Run()
+
 	// Start the HTTP server after the adapter, as adapter.Run() adds additional
 	// handlers to the router.
 	Logger.Debug("starting HTTP server")
@@ -94,9 +121,17 @@ func (robot *Robot) Run() error {
 // Stop initiates the shutdown process
 func (robot *Robot) Stop() error {
 	fmt.Println() // so we don't break up the log formatting when running interactively ;)
-	Logger.Infof("stopping %s adapter", Config.AdapterName)
 
-	robot.Adapter.Stop()
+	Logger.Infof("stopping %s adapter", Config.AdapterName)
+	if err := robot.Adapter.Stop(); err != nil {
+		return err
+	}
+
+	Logger.Infof("closing %s store connection", Config.StoreName)
+	if err := robot.Store.Close(); err != nil {
+		return err
+	}
+
 	Logger.Info("stopping robot")
 
 	return nil
@@ -121,4 +156,34 @@ func (robot *Robot) SetName(name string) {
 // SetAdapter sets robot's adapter
 func (robot *Robot) SetAdapter(adapter Adapter) {
 	robot.Adapter = adapter
+}
+
+// SetAdapter sets robot's adapter
+func (robot *Robot) SetStore(store Store) {
+	robot.Store = store
+}
+
+func (robot *Robot) Users() (*UserMap, error) {
+	users := &UserMap{}
+
+	rawUsers, err := robot.Store.Get("hal:users")
+	if err != nil {
+		// Ensure we're not just missing the users key
+		if err = robot.Store.Set("hal:users", []byte{}); err != nil {
+			return users, err
+		}
+	}
+
+	json.Unmarshal(rawUsers, users)
+	return users, nil
+	// return robot.users
+}
+
+func (robot *Robot) SetUsers(um *UserMap) error {
+	data, err := um.Encode()
+	if err != nil {
+		return err
+	}
+
+	return robot.Store.Set("hal:users", data)
 }
