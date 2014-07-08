@@ -21,8 +21,6 @@ func New(robot *hal.Robot) (hal.Store, error) {
 
 func (s *store) Open() error                       { return nil }
 func (s *store) Close() error                      { return nil }
-func (s *store) Load() error                       { return nil }
-func (s *store) Save() error                       { return nil }
 func (s *store) Get(key string) ([]byte, error)    { return []byte{}, nil }
 func (s *store) Set(key string, data []byte) error { return nil }
 func (s *store) Delete(key string) error           { return nil }

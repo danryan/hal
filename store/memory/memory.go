@@ -33,14 +33,6 @@ func (s *store) Close() error {
 	return nil
 }
 
-func (s *store) Load() error {
-	return nil
-}
-
-func (s *store) Save() error {
-	return nil
-}
-
 func (s *store) Get(key string) ([]byte, error) {
 	if val, ok := s.data[key]; ok {
 		return val, nil
