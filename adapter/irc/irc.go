@@ -135,7 +135,7 @@ func (a *adapter) Name() string {
 
 func (a *adapter) newMessage(req *irc.Event) *hal.Message {
 	return &hal.Message{
-		User: &hal.User{
+		User: hal.User{
 			ID: req.Nick,
 		},
 		Room: req.Arguments[0],

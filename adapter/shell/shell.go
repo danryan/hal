@@ -119,7 +119,7 @@ func prompt() {
 func (a *adapter) newMessage(text string) *hal.Message {
 	return &hal.Message{
 		ID:   "local-message",
-		User: &hal.User{ID: "1", Name: "shell"},
+		User: hal.User{ID: "1", Name: "shell"},
 		Room: "shell",
 		Text: text,
 	}
