@@ -169,7 +169,7 @@ func (a *adapter) Name() string {
 
 func (a *adapter) newMessageFromHTTP(req *slackRequest) *hal.Message {
 	return &hal.Message{
-		User: &hal.User{
+		User: hal.User{
 			ID: req.UserName,
 		},
 		Room: req.ChannelID,
@@ -179,7 +179,7 @@ func (a *adapter) newMessageFromHTTP(req *slackRequest) *hal.Message {
 
 func (a *adapter) newMessageFromIRC(req *irc.Event) *hal.Message {
 	return &hal.Message{
-		User: &hal.User{
+		User: hal.User{
 			ID: req.Nick,
 		},
 		Room: req.Arguments[0],

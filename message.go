@@ -8,7 +8,7 @@ package hal
 // Message represents an incoming chat message.
 type Message struct {
 	ID   string
-	User *User
+	User User
 	Room string
 	Text string
 }
