@@ -18,7 +18,6 @@ type Robot struct {
 	handlers   []Handler
 	users      map[string]User
 	signalChan chan os.Signal
-	// Brain      *Brain
 }
 
 // Handlers returns the robot's handlers
@@ -46,13 +45,6 @@ func NewRobot() (*Robot, error) {
 		return nil, err
 	}
 	robot.SetStore(store)
-
-	// brain, err := NewBrain(robot)
-	// if err != nil {
-	// 	Logger.Error(err)
-	// 	return nil, err
-	// }
-	// robot.SetBrain(brain)
 
 	return robot, nil
 }
@@ -140,11 +132,6 @@ func (robot *Robot) Stop() error {
 		return err
 	}
 
-	// Logger.Info("stopping brain")
-	// if err := robot.Brain.Stop(); err != nil {
-	// 	return err
-	// }
-
 	Logger.Info("stopping robot")
 
 	return nil
@@ -200,8 +187,3 @@ func (robot *Robot) SetUsers(um *UserMap) error {
 
 	return robot.Store.Set("hal:users", data)
 }
-
-// // SetBrain sets robot's brain
-// func (robot *Robot) SetBrain(brain *Brain) {
-// 	robot.Brain = brain
-// }
