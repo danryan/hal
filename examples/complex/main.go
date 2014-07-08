@@ -6,6 +6,8 @@ import (
 	_ "github.com/danryan/hal/adapter/shell"
 	_ "github.com/danryan/hal/adapter/slack"
 	"github.com/danryan/hal/examples/complex/scripts"
+	_ "github.com/danryan/hal/store/memory"
+
 	"log"
 	"os"
 )
