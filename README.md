@@ -35,7 +35,7 @@ Stores are the brains of hal, used to persist long-term data and retrieve when n
 * [Memory](https://github.com/danryan/hal/wiki/Memory-Store)
 * [Redis](https://github.com/danryan/hal/wiki/Redis-Store)
 
- If you think support for a particular store is needed, [just open a ticket :beers:](https://github.com/danryan/hal/issues/new)
+If you think support for a particular store is needed, [just open a ticket :beers:](https://github.com/danryan/hal/issues/new)
 
 ## Bugs, features, rants, hate-mail, etc.
 
