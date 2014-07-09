@@ -1,6 +1,7 @@
 package hal
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -27,6 +28,7 @@ func (robot *Robot) Handlers() []Handler {
 func NewRobot() (*Robot, error) {
 	robot := &Robot{
 		Name:       Config.Name,
+		Alias:      Config.Alias,
 		signalChan: make(chan os.Signal, 1),
 	}
 
@@ -137,15 +139,16 @@ func (robot *Robot) Stop() error {
 	return nil
 }
 
+// ^(?:@?(?:h|hal)[:,]?)\s+(?:.+)
 func (robot *Robot) respondRegex(pattern string) string {
-	str := `^(?:`
+	return fmt.Sprintf(`^(?:@?(?:%s)[:,]?)\s+(?:%s)`, robot.regexAliasOrName(), pattern)
+}
+
+func (robot *Robot) regexAliasOrName() string {
 	if robot.Alias != "" {
-		str += `(?:` + robot.Alias + `|` + robot.Name + `)`
-	} else {
-		str += robot.Name
+		return fmt.Sprintf("%s|%s", robot.Alias, robot.Name)
 	}
-	str += `[:,]?)\s+(?:` + pattern + `)`
-	return str
+	return fmt.Sprintf("%s", robot.Name)
 }
 
 // SetName sets robot's name
