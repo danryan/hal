@@ -1,12 +1,10 @@
 package hal
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	// "time"
 )
 
 // Robot receives messages from an adapter and sends them to listeners
@@ -82,17 +80,16 @@ func (robot *Robot) Receive(msg *Message) error {
 func (robot *Robot) Run() error {
 	Logger.Info("starting robot")
 
-	Logger.Infof("opening %s store connection", Config.StoreName)
 	// HACK
+	Logger.Debugf("opening %s store connection", Config.StoreName)
 	go func() {
 		robot.Store.Open()
 
-		Logger.Info("loading users from store")
+		Logger.Debug("loading users from store")
 		robot.Users.Load()
-		Logger.Info(robot.Users.All())
 	}()
 
-	Logger.Infof("starting %s adapter", Config.AdapterName)
+	Logger.Debugf("starting %s adapter", Config.AdapterName)
 	go robot.Adapter.Run()
 
 	// Start the HTTP server after the adapter, as adapter.Run() adds additional
@@ -123,14 +120,14 @@ func (robot *Robot) Run() error {
 
 // Stop initiates the shutdown process
 func (robot *Robot) Stop() error {
-	fmt.Println() // so we don't break up the log formatting when running interactively ;)
+	Logger.Info() // so we don't break up the log formatting when running interactively ;)
 
-	Logger.Infof("stopping %s adapter", Config.AdapterName)
+	Logger.Debugf("stopping %s adapter", Config.AdapterName)
 	if err := robot.Adapter.Stop(); err != nil {
 		return err
 	}
 
-	Logger.Infof("closing %s store connection", Config.StoreName)
+	Logger.Debugf("closing %s store connection", Config.StoreName)
 	if err := robot.Store.Close(); err != nil {
 		return err
 	}
@@ -161,7 +158,7 @@ func (robot *Robot) SetAdapter(adapter Adapter) {
 	robot.Adapter = adapter
 }
 
-// SetAdapter sets robot's adapter
+// SetStore sets robot's adapter
 func (robot *Robot) SetStore(store Store) {
 	robot.Store = store
 }

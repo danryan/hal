@@ -13,11 +13,13 @@ type User struct {
 	Options map[string]interface{}
 }
 
+// UserMap handles the known users
 type UserMap struct {
 	Map   map[string]User
 	robot *Robot
 }
 
+// NewUserMap returns an initialized UserMap
 func NewUserMap(robot *Robot) *UserMap {
 	return &UserMap{
 		Map:   make(map[string]User, 0),
@@ -25,10 +27,12 @@ func NewUserMap(robot *Robot) *UserMap {
 	}
 }
 
+// All returns the underlying map of all users
 func (um *UserMap) All() map[string]User {
 	return um.Map
 }
 
+// Get looks up a user by id and returns a User object
 func (um *UserMap) Get(id string) (User, error) {
 	user, ok := um.Map[id]
 	if !ok {
@@ -37,16 +41,16 @@ func (um *UserMap) Get(id string) (User, error) {
 	return user, nil
 }
 
+// Set adds or updates a user in the UserMap and persists it to the store
 func (um *UserMap) Set(id string, user User) error {
 	um.Map[id] = user
-
 	if err := um.Save(); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Encode func
+// Encode marshals a UserMap to JSON
 func (um *UserMap) Encode() ([]byte, error) {
 	data, err := json.Marshal(um.Map)
 	if err != nil {
@@ -55,7 +59,7 @@ func (um *UserMap) Encode() ([]byte, error) {
 	return data, err
 }
 
-// Decode func
+// Decode unmarshals a JSON object into a map of strings to Users
 func (um *UserMap) Decode() (map[string]User, error) {
 	data, err := um.robot.Store.Get("users")
 	if err != nil {
@@ -70,7 +74,7 @@ func (um *UserMap) Decode() (map[string]User, error) {
 	return users, nil
 }
 
-// Load func
+// Load retrieves known users from the store and populates the UserMap
 func (um *UserMap) Load() error {
 	data, err := um.Decode()
 	if err != nil {
@@ -81,7 +85,7 @@ func (um *UserMap) Load() error {
 	return nil
 }
 
-// Save func
+// Save persists known users to the store
 func (um *UserMap) Save() error {
 	data, err := um.Encode()
 	if err != nil {

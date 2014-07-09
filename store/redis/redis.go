@@ -26,6 +26,8 @@ type config struct {
 	Namespace string `env:"key=HAL_REDIS_NAMESPACE default=hal"`
 }
 
+func (s *store) Name() string { return "redis" }
+
 // New returns an new initialized store
 func New(robot *hal.Robot) (hal.Store, error) {
 	c := &config{}
@@ -36,8 +38,6 @@ func New(robot *hal.Robot) (hal.Store, error) {
 	s.SetRobot(robot)
 	return s, nil
 }
-
-func (s *store) Name() string { return "redis" }
 
 func (s *store) Open() error {
 	uri, err := url.Parse(s.config.URL)

@@ -21,6 +21,7 @@ func main() {
 	os.Exit(Run())
 }
 
+// Run the robot
 func Run() int {
 	robot, err := hal.NewRobot()
 	if err != nil {
