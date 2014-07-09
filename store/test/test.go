@@ -24,4 +24,3 @@ func (s *store) Close() error                      { return nil }
 func (s *store) Get(key string) ([]byte, error)    { return []byte{}, nil }
 func (s *store) Set(key string, data []byte) error { return nil }
 func (s *store) Delete(key string) error           { return nil }
-func (s *store) Name() string                      { return "test" }

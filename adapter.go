@@ -18,7 +18,6 @@ type Adapter interface {
 	Play(*Response, ...string) error
 
 	String() string
-	Name() string
 }
 
 type adapter struct {
@@ -64,9 +63,5 @@ func (a *BasicAdapter) SetRobot(r *Robot) {
 }
 
 func (a *BasicAdapter) String() string {
-	return a.Robot.Adapter.Name()
-}
-
-func (a *BasicAdapter) Name() string {
-	return "basic"
+	return Config.AdapterName
 }

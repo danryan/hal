@@ -9,8 +9,6 @@ func init() {
 	hal.RegisterStore("memory", New)
 }
 
-func (s *store) Name() string { return "memory" }
-
 type store struct {
 	hal.BasicStore
 	data map[string][]byte

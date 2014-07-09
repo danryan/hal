@@ -162,11 +162,6 @@ func (a *adapter) Stop() error {
 	return nil
 }
 
-// Name returns the adapter name
-func (a *adapter) Name() string {
-	return "slack"
-}
-
 func (a *adapter) newMessageFromHTTP(req *slackRequest) *hal.Message {
 	return &hal.Message{
 		User: hal.User{

@@ -129,10 +129,6 @@ func (a *adapter) Stop() error {
 	return nil
 }
 
-func (a *adapter) Name() string {
-	return "irc"
-}
-
 func (a *adapter) newMessage(req *irc.Event) *hal.Message {
 	return &hal.Message{
 		User: hal.User{

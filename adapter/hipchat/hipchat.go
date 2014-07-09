@@ -86,10 +86,6 @@ func (a *adapter) Stop() error {
 	return nil
 }
 
-func (a *adapter) Name() string {
-	return "hipchat"
-}
-
 func (a *adapter) newMessageFromHTTP(req *hipchatRequest) *hal.Message {
 	return &hal.Message{
 		User: &hal.User{

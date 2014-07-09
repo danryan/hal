@@ -11,7 +11,6 @@ type Store interface {
 	Get(string) ([]byte, error)
 	Set(key string, data []byte) error
 	Delete(string) error
-	Name() string
 }
 
 type store struct {
@@ -52,4 +51,8 @@ func NewStore(robot *Robot) (Store, error) {
 		return nil, err
 	}
 	return store, nil
+}
+
+func (s *BasicStore) String() string {
+	return Config.StoreName
 }

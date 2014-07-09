@@ -138,7 +138,3 @@ func (a *adapter) writeString(str string) error {
 
 	return nil
 }
-
-func (a *adapter) Name() string {
-	return "shell"
-}
