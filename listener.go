@@ -1,8 +1,16 @@
 package hal
 
 import (
-	//"log"
+	"fmt"
 	"regexp"
+	"strings"
+)
+
+var (
+	// RespondRegexp is used to determine whether a received message should be processed as a response
+	respondRegexp = fmt.Sprintf(`^(?:@?(?:%s|%s)[:,]?)\s+(?:(.+))`, Config.Alias, Config.Name)
+	// RespondRegexpTemplate expands the RespondRegexp
+	respondRegexpTemplate = fmt.Sprintf(`^(?:@?(?:%s|%s)[:,]?)\s+(?:${1})`, Config.Alias, Config.Name)
 )
 
 // Listener struct
@@ -15,22 +23,23 @@ type Listener struct {
 
 // Handle implements the hal.Handler interface
 func (l *Listener) Handle(res *Response) error {
-	robot := res.Robot
 	text := res.Message.Text
 
 	if l.Method == RESPOND {
-		l.regex = regexp.MustCompile(robot.respondRegex(l.Pattern))
+		l.regex = regexp.MustCompile(strings.Replace(respondRegexpTemplate, "${1}", l.Pattern, 1))
 	} else {
 		l.regex = regexp.MustCompile(l.Pattern)
 	}
 
 	match := l.regex.FindAllStringSubmatch(text, -1)
+
 	if match == nil {
-		// log.Printf(`/%s/ did not match "%s"`, l.String(), text)
+		Logger.Debugf(`/%s/ did not match "%s"`, l.String(), text)
 		return nil
 	}
-	// log.Printf(`/%s/ matched "%s"`, l.String(), text)
-	res.Match = match
+	Logger.Debugf(`/%s/ matched "%s"`, l.String(), text)
+	// res.Match = match
+	res.Match = match[0]
 
 	if err := l.Handler(res); err != nil {
 		return err
