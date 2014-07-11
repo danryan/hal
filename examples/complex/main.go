@@ -2,13 +2,9 @@ package main
 
 import (
 	"github.com/danryan/hal"
-	_ "github.com/danryan/hal/adapter/irc"
 	_ "github.com/danryan/hal/adapter/shell"
-	_ "github.com/danryan/hal/adapter/slack"
-	"github.com/danryan/hal/examples/complex/scripts"
+	"github.com/danryan/hal/handler"
 	_ "github.com/danryan/hal/store/memory"
-
-	"log"
 	"os"
 )
 
@@ -16,39 +12,49 @@ import (
 // however you deem best.
 
 // You can define your handlers in the same file...
-var openDoorsHandler = hal.Respond(`open the pod bay doors`, func(res *hal.Response) error {
-	return res.Reply("I'm sorry, Dave. I can't do that.")
+var pingHandler = hal.Hear(`ping`, func(res *hal.Response) error {
+	return res.Send("PONG")
 })
 
-func Run() int {
+func run() int {
 	robot, err := hal.NewRobot()
 	if err != nil {
-		log.Println(err)
+		hal.Logger.Error(err)
 		return 1
 	}
 
 	// Or define them inside another function...
-	var fooHandler = hal.Respond(`foo`, func(res *hal.Response) error {
+	fooHandler := hal.Respond(`foo`, func(res *hal.Response) error {
 		return res.Send("BAR")
 	})
 
-	// Or use the underlying hal.Listener struct...
-	var tableFlipHandler = &hal.Listener{
+	tableFlipHandler := &hal.BasicHandler{
 		Method:  hal.HEAR,
 		Pattern: `tableflip`,
-		Handler: func(res *hal.Response) error {
+		Run: func(res *hal.Response) error {
 			return res.Send(`(╯°□°）╯︵ ┻━┻`)
 		},
 	}
 
-	// Or stick them in an entirely different package, and reference them
-	// exactly in the ways you would expect.
 	robot.Handle(
-		scripts.PingHandler,
-		scripts.SynHandler,
-		openDoorsHandler,
+		pingHandler,
 		fooHandler,
 		tableFlipHandler,
+
+		// Or stick them in an entirely different package, and reference them
+		// exactly in the way you would expect.
+		handler.Ping,
+
+		// Or use a hal.BasicHandler structure complete with usage...
+		&hal.BasicHandler{
+			Method:  hal.RESPOND,
+			Pattern: `SYN`,
+			Usage:   `hal syn - replies with "ACK"`,
+			Run: func(res *hal.Response) error {
+				return res.Reply("ACK")
+			},
+		},
+
 		// Or even inline!
 		hal.Hear(`yo`, func(res *hal.Response) error {
 			return res.Send("lo")
@@ -56,12 +62,12 @@ func Run() int {
 	)
 
 	if err := robot.Run(); err != nil {
-		log.Println(err)
+		hal.Logger.Error(err)
 		return 1
 	}
 	return 0
 }
 
 func main() {
-	os.Exit(Run())
+	os.Exit(run())
 }

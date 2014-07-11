@@ -2,10 +2,8 @@ package main
 
 import (
 	"github.com/danryan/hal"
-	_ "github.com/danryan/hal/adapter/irc"
 	_ "github.com/danryan/hal/adapter/shell"
-	_ "github.com/danryan/hal/adapter/slack"
-	"log"
+	_ "github.com/danryan/hal/store/memory"
 	"os"
 )
 
@@ -13,30 +11,29 @@ var pingHandler = hal.Hear(`ping`, func(res *hal.Response) error {
 	return res.Send("PONG")
 })
 
-var openDoorsHandler = hal.Respond(`open the pod bay doors`, func(res *hal.Response) error {
-	return res.Reply("I'm sorry, Dave. I can't do that.")
+var echoHandler = hal.Respond(`echo (.+)`, func(res *hal.Response) error {
+	return res.Reply(res.Match[1])
 })
 
-func main() {
-	os.Exit(Run())
-}
-
-// Run the robot
-func Run() int {
+func run() int {
 	robot, err := hal.NewRobot()
 	if err != nil {
-		log.Println(err)
+		hal.Logger.Error(err)
 		return 1
 	}
 
 	robot.Handle(
 		pingHandler,
-		openDoorsHandler,
+		echoHandler,
 	)
 
 	if err := robot.Run(); err != nil {
-		log.Println(err)
+		hal.Logger.Error(err)
 		return 1
 	}
 	return 0
+}
+
+func main() {
+	os.Exit(run())
 }
