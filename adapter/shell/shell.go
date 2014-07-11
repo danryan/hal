@@ -48,7 +48,7 @@ func (a *adapter) Send(res *hal.Response, strings ...string) error {
 // Reply sends a direct response
 func (a *adapter) Reply(res *hal.Response, strings ...string) error {
 	for _, str := range strings {
-		s := res.UserID() + `: ` + str
+		s := res.UserName() + `: ` + str
 		err := a.writeString(s)
 		if err != nil {
 			log.Println("error: ", err)

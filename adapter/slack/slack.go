@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/danryan/env"
 	"github.com/danryan/hal"
 	irc "github.com/thoj/go-ircevent"
@@ -85,7 +86,7 @@ func (a *adapter) Send(res *hal.Response, strings ...string) error {
 func (a *adapter) Reply(res *hal.Response, strings ...string) error {
 	newStrings := make([]string, len(strings))
 	for _, str := range strings {
-		newStrings = append(newStrings, res.UserID()+`: `+str)
+		newStrings = append(newStrings, fmt.Sprintf("%s: %s", res.UserName(), str))
 	}
 
 	a.Send(res, newStrings...)
@@ -165,7 +166,8 @@ func (a *adapter) Stop() error {
 func (a *adapter) newMessageFromHTTP(req *slackRequest) *hal.Message {
 	return &hal.Message{
 		User: hal.User{
-			ID: req.UserName,
+			ID:   req.UserID,
+			Name: req.UserName,
 		},
 		Room: req.ChannelID,
 		Text: req.Text,
@@ -175,7 +177,8 @@ func (a *adapter) newMessageFromHTTP(req *slackRequest) *hal.Message {
 func (a *adapter) newMessageFromIRC(req *irc.Event) *hal.Message {
 	return &hal.Message{
 		User: hal.User{
-			ID: req.Nick,
+			ID:   req.Nick,
+			Name: req.Nick,
 		},
 		Room: req.Arguments[0],
 		Text: req.Message(),
@@ -265,7 +268,7 @@ func (a *adapter) sendHTTP(res *hal.Response, strings ...string) error {
 			Text:     str,
 		}
 
-		u := `https://` + a.team + `.slack.com/services/hooks/hubot?token=` + a.token
+		u := fmt.Sprintf("https://%s.slack/com/services/hooks/hubot?token=%s", a.team, a.token)
 		payload, _ := json.Marshal(s)
 		data := url.Values{}
 		data.Set("payload", string(payload))

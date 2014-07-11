@@ -132,7 +132,8 @@ func (a *adapter) Stop() error {
 func (a *adapter) newMessage(req *irc.Event) *hal.Message {
 	return &hal.Message{
 		User: hal.User{
-			ID: req.Nick,
+			ID:   req.Nick,
+			Name: req.Nick,
 		},
 		Room: req.Arguments[0],
 		Text: req.Message(),

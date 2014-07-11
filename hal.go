@@ -1,6 +1,6 @@
 package hal
 
-// Listener constants
+// Handler constants
 const (
 	HEAR    = "HEAR"
 	RESPOND = "RESPOND"
@@ -24,31 +24,31 @@ func New() (*Robot, error) {
 }
 
 // Hear a message
-func Hear(pattern string, handler HandlerFunc) *Listener {
-	return &Listener{Method: HEAR, Pattern: pattern, Handler: handler}
+func Hear(pattern string, fn func(res *Response) error) handler {
+	return &BasicHandler{Method: HEAR, Pattern: pattern, Run: fn}
 }
 
 // Respond creates a new listener for Respond messages
-func Respond(pattern string, handler HandlerFunc) *Listener {
-	return &Listener{Method: RESPOND, Pattern: pattern, Handler: handler}
+func Respond(pattern string, fn func(res *Response) error) handler {
+	return &BasicHandler{Method: RESPOND, Pattern: pattern, Run: fn}
 }
 
 // Topic returns a new listener for Topic messages
-func Topic(pattern string, handler HandlerFunc) *Listener {
-	return &Listener{Method: TOPIC, Pattern: pattern, Handler: handler}
+func Topic(pattern string, fn func(res *Response) error) handler {
+	return &BasicHandler{Method: TOPIC, Run: fn}
 }
 
 // Enter returns a new listener for Enter messages
-func Enter(handler HandlerFunc) *Listener {
-	return &Listener{Method: ENTER, Handler: handler}
+func Enter(fn func(res *Response) error) handler {
+	return &BasicHandler{Method: ENTER, Run: fn}
 }
 
 // Leave creates a new listener for Leave messages
-func Leave(handler HandlerFunc) *Listener {
-	return &Listener{Method: LEAVE, Handler: handler}
+func Leave(fn func(res *Response) error) handler {
+	return &BasicHandler{Method: LEAVE, Run: fn}
 }
 
-// Close shuts down the robot
+// Close shuts down the robot. Unused?
 func Close() error {
 	return nil
 }

@@ -70,7 +70,7 @@ func (a *adapter) Send(res *hal.Response, strings ...string) error {
 func (a *adapter) Reply(res *hal.Response, strings ...string) error {
 	newStrings := make([]string, len(strings))
 	for _, str := range strings {
-		newStrings = append(newStrings, res.UserID()+`: `+str)
+		newStrings = append(newStrings, res.UserName()+`: `+str)
 	}
 
 	return a.Send(res, newStrings...)

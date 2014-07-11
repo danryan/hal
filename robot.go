@@ -1,7 +1,6 @@
 package hal
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,13 +13,13 @@ type Robot struct {
 	Alias      string
 	Adapter    Adapter
 	Store      Store
-	handlers   []Handler
+	handlers   []handler
 	Users      *UserMap
 	signalChan chan os.Signal
 }
 
 // Handlers returns the robot's handlers
-func (robot *Robot) Handlers() []Handler {
+func (robot *Robot) Handlers() []handler {
 	return robot.handlers
 }
 
@@ -51,8 +50,11 @@ func NewRobot() (*Robot, error) {
 }
 
 // Handle registers a new handler with the robot
-func (robot *Robot) Handle(handlers ...Handler) {
-	robot.handlers = append(robot.handlers, handlers...)
+func (robot *Robot) Handle(handlers ...handler) {
+	for _, h := range handlers {
+		robot.handlers = append(robot.handlers, NewHandler(h))
+	}
+	// robot.handlers = append(robot.handlers, handlers...)
 }
 
 // Receive dispatches messages to our handlers
@@ -135,20 +137,7 @@ func (robot *Robot) Stop() error {
 	}
 
 	Logger.Info("stopping robot")
-
 	return nil
-}
-
-// ^(?:@?(?:h|hal)[:,]?)\s+(?:.+)
-func (robot *Robot) respondRegex(pattern string) string {
-	return fmt.Sprintf(`^(?:@?(?:%s)[:,]?)\s+(?:%s)`, robot.regexAliasOrName(), pattern)
-}
-
-func (robot *Robot) regexAliasOrName() string {
-	if robot.Alias != "" {
-		return fmt.Sprintf("%s|%s", robot.Alias, robot.Name)
-	}
-	return fmt.Sprintf("%s", robot.Name)
 }
 
 // SetName sets robot's name

@@ -2,13 +2,9 @@ package hal
 
 // Response struct
 type Response struct {
-	Robot    *Robot
-	Message  *Message
-	Match    []string
-	Listener Listener
-	// Match    [][]string
-	// Match    []string
-	// Envelope *Envelope
+	Robot   *Robot
+	Message *Message
+	Match   []string
 }
 
 // Envelope contains metadata about the chat message.
