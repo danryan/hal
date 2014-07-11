@@ -17,7 +17,7 @@ var pingHandler = hal.Hear(`ping`, func(res *hal.Response) error {
 })
 
 var getHandler = hal.Hear(`get (.+)`, func(res *hal.Response) error {
-	key := res.Match[0][1]
+	key := res.Match[1]
 	val, err := res.Robot.Store.Get(key)
 	if err != nil {
 		res.Send(err.Error())
@@ -27,8 +27,8 @@ var getHandler = hal.Hear(`get (.+)`, func(res *hal.Response) error {
 })
 
 var setHandler = hal.Hear(`set (.+) (.+)`, func(res *hal.Response) error {
-	key := res.Match[0][1]
-	val := res.Match[0][2]
+	key := res.Match[1]
+	val := res.Match[2]
 	err := res.Robot.Store.Set(key, []byte(val))
 	if err != nil {
 		res.Send(err.Error())
@@ -38,7 +38,7 @@ var setHandler = hal.Hear(`set (.+) (.+)`, func(res *hal.Response) error {
 })
 
 var deleteHandler = hal.Hear(`delete (.+)`, func(res *hal.Response) error {
-	key := res.Match[0][1]
+	key := res.Match[1]
 	if err := res.Robot.Store.Delete(key); err != nil {
 		res.Send(err.Error())
 		return err
@@ -56,7 +56,7 @@ var usersHandler = hal.Hear(`show users`, func(res *hal.Response) error {
 })
 
 var userHandler = hal.Hear(`user (.+)`, func(res *hal.Response) error {
-	id := res.Match[0][1]
+	id := res.Match[1]
 	user, _ := res.Robot.Users.Get(id)
 	// users, _ := res.Robot.Store.Get("hal:users")
 	line := spew.Sdump(user)

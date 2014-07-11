@@ -41,6 +41,16 @@ func (um *UserMap) Get(id string) (User, error) {
 	return user, nil
 }
 
+// GetByName looks up a user by name and returns a User object
+func (um *UserMap) GetByName(name string) (User, error) {
+	for _, user := range um.Map {
+		if user.Name == name {
+			return user, nil
+		}
+	}
+	return User{}, fmt.Errorf("could not find user with name %s", name)
+}
+
 // Set adds or updates a user in the UserMap and persists it to the store
 func (um *UserMap) Set(id string, user User) error {
 	um.Map[id] = user

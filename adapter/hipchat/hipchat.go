@@ -1,25 +1,68 @@
 package hipchat
 
 import (
-	_ "crypto/tls"
-	_ "encoding/json"
-	_ "errors"
+	"github.com/daneharrigan/hipchat"
+	"github.com/danryan/env"
 	"github.com/danryan/hal"
-	_ "github.com/mattn/go-xmpp"
-	"net/http"
-	"net/url"
+	"strings"
 )
+
+func init() {
+	hal.RegisterAdapter("hipchat", New)
+}
 
 // adapter struct
 type adapter struct {
 	hal.BasicAdapter
-	jid      string
+	user     string
+	nick     string
+	name     string
 	password string
-	rooms    string
+	resource string
+	rooms    []string
+	client   *hipchat.Client
+	// config   *config
+}
+
+type config struct {
+	User     string `env:"required key=HAL_HIPCHAT_USER"`
+	Password string `env:"required key=HAL_HIPCHAT_PASSWORD"`
+	Rooms    string `env:"required key=HAL_HIPCHAT_ROOMS"`
+	Resource string `env:"key=HAL_HIPCHAT_RESOURCE default=bot"`
+}
+
+// New returns an initialized adapter
+func New(robot *hal.Robot) (hal.Adapter, error) {
+	c := &config{}
+	env.MustProcess(c)
+
+	a := &adapter{
+		user:     c.User,
+		password: c.Password,
+		resource: c.Resource,
+		rooms:    func() []string { return strings.Split(c.Rooms, ",") }(),
+	}
+	a.SetRobot(robot)
+	return a, nil
+}
+
+// Run starts the adapter
+func (a *adapter) Run() error {
+	go a.startConnection()
+	return nil
+}
+
+// Stop shuts down the adapter
+func (a *adapter) Stop() error {
+	// hipchat package doesn't provide an explicit stop command
+	return nil
 }
 
 // Send sends a regular response
 func (a *adapter) Send(res *hal.Response, strings ...string) error {
+	for _, str := range strings {
+		a.client.Say(res.Message.Room, a.name, str)
+	}
 	return nil
 }
 
@@ -30,9 +73,7 @@ func (a *adapter) Reply(res *hal.Response, strings ...string) error {
 		newStrings = append(newStrings, res.UserID()+`: `+str)
 	}
 
-	a.Send(res, newStrings...)
-
-	return nil
+	return a.Send(res, newStrings...)
 }
 
 // Emote is not implemented.
@@ -40,11 +81,8 @@ func (a *adapter) Emote(res *hal.Response, strings ...string) error {
 	return nil
 }
 
-// Topic sets the topic
+// Topic is not implemented.
 func (a *adapter) Topic(res *hal.Response, strings ...string) error {
-	for _, str := range strings {
-		_ = str
-	}
 	return nil
 }
 
@@ -62,103 +100,76 @@ func (a *adapter) Receive(msg *hal.Message) error {
 	return nil
 }
 
-// Run starts the adapter
-func (a *adapter) Run() error {
-	hal.Logger.Debug("hipchat - adding HTTP request handlers")
-	hal.Router.HandleFunc("/hal/hipchat-webhook", a.hipchatHandler)
+func (a *adapter) newMessage(msg *hipchat.Message) *hal.Message {
+	from := strings.Split(msg.From, "/")
+	user, _ := a.Robot.Users.GetByName(from[1])
 
-	return nil
-}
-
-func (a *adapter) hipchatHandler(w http.ResponseWriter, r *http.Request) {
-	hal.Logger.Debug("hipchat - HTTP handler received message")
-
-	r.ParseForm()
-	parsedRequest := a.parseRequest(r.Form)
-	message := a.newMessageFromHTTP(parsedRequest)
-
-	a.Receive(message)
-	w.Write([]byte(""))
-}
-
-// Stop shuts down the adapter
-func (a *adapter) Stop() error {
-	return nil
-}
-
-func (a *adapter) newMessageFromHTTP(req *hipchatRequest) *hal.Message {
 	return &hal.Message{
-		User: &hal.User{
-			ID: req.UserName,
+		User: hal.User{
+			ID:   user.ID,
+			Name: user.Name,
 		},
-		Room: req.ChannelID,
-		Text: req.Text,
+		Room: from[0],
+		Text: msg.Body,
 	}
 }
 
-func (a *adapter) parseRequest(form url.Values) *hipchatRequest {
-	return &hipchatRequest{
-		ChannelID:   form.Get("channel_id"),
-		ChannelName: form.Get("channel_name"),
-		ServiceID:   form.Get("service_id"),
-		TeamID:      form.Get("team_id"),
-		TeamDomain:  form.Get("team_domain"),
-		Text:        form.Get("text"),
-		Timestamp:   form.Get("timestamp"),
-		Token:       form.Get("token"),
-		UserID:      form.Get("user_id"),
-		UserName:    form.Get("user_name"),
+func (a *adapter) startConnection() error {
+	client, err := hipchat.NewClient(a.user, a.password, a.resource)
+	if err != nil {
+		hal.Logger.Error(err.Error())
+		return err
 	}
-}
 
-type hipchatPayload struct {
-	Channel   string `json:"channel,omitempty"`
-	Username  string `json:"username,omitempty"`
-	Text      string `json:"text,omitempty"`
-	IconEmoji string `json:"icon_emoji,omitempty"`
-}
+	client.Status("chat")
 
-// the payload of an inbound request (from Hipchat to us).
-type hipchatRequest struct {
-	ChannelID   string
-	ChannelName string
-	ServiceID   string
-	TeamID      string
-	TeamDomain  string
-	Text        string
-	Timestamp   string
-	Token       string
-	UserID      string
-	UserName    string
-}
+	for _, user := range client.Users() {
+		// retrieve the name and mention name of our bot from the server
+		if user.Id == client.Id {
+			a.name = user.Name
+			a.nick = user.MentionName
+			// skip adding the bot to the users map
+			continue
+		}
+		// prepopulate our users map because we can easily do so
+		// if a user doesn't exist, set it
+		if _, err := a.Robot.Users.Get(user.Id); err != nil {
+			a.Robot.Users.Set(user.Id, hal.User{ID: user.Id, Name: user.Name})
+		}
+	}
 
-func (a *adapter) sendHTTP(res *hal.Response, strings ...string) error {
-	hal.Logger.Debug("hipchat - sending HTTP response")
-	// for _, str := range strings {
-	// s := &hipchatPayload{
-	// Username: a.botname,
-	// Channel:  res.Message.Room,
-	// Text:     str,
-	// }
+	// Make a map of room JIDs to human names
+	roomJids := make(map[string]string, len(client.Rooms()))
+	for _, room := range client.Rooms() {
+		roomJids[room.Name] = room.Id
+	}
+	client.Status("chat")
+	// Only join the rooms we want
+	for _, room := range a.rooms {
+		hal.Logger.Debugf("%s - joined %s", a, room)
+		client.Join(roomJids[room], a.name)
+	}
 
-	// u := `https://` + a.team + `.hipchat.com/services/hooks/hubot?token=` + a.token
-	// payload, _ := json.Marshal(s)
-	// data := url.Values{}
-	// data.Set("payload", string(payload))
+	a.client = client
+	a.Robot.Alias = a.nick
 
-	// client := http.Client{}
-	// _, err := client.PostForm(u, data)
-	// if err != nil {
-	// return err
-	// }
-	// }
+	// send an empty string every 60 seconds so hipchat doesn't disconnect us
+	go client.KeepAlive()
 
+	for message := range client.Messages() {
+		from := strings.Split(message.From, "/")
+		// ignore messages directly from the channel
+		// TODO: don't do this :)
+		if len(from) < 2 {
+			continue
+		}
+		// ingore messages from our bot
+		if from[1] == a.name {
+			continue
+		}
+
+		msg := a.newMessage(message)
+		a.Receive(msg)
+	}
 	return nil
-}
-
-type HipchatClient struct {
-}
-
-func (a *adapter) newClient() *HipchatClient {
-	return &HipchatClient{}
 }
