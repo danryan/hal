@@ -20,7 +20,7 @@ func (h *ping) Usage() string {
 }
 
 func (h *ping) Pattern() string {
-	return `(?:(?:p|P)ing|PING)`
+	return `(?i)ping`
 }
 
 func (h *ping) Run(res *hal.Response) error {
