@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 )
 
@@ -99,7 +100,11 @@ func (robot *Robot) Run() error {
 	// Start the HTTP server after the adapter, as adapter.Run() adds additional
 	// handlers to the router.
 	Logger.Debug("starting HTTP server")
-	go http.ListenAndServe(`:`+string(Config.Port), Router)
+	go func() {
+		if err := http.ListenAndServe(`:`+strconv.Itoa(Config.Port), Router); err != nil {
+			Logger.Debug(err)
+		}
+	}()
 
 	signal.Notify(robot.signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
