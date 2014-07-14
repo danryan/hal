@@ -2,9 +2,10 @@ package hal
 
 // Response struct
 type Response struct {
-	Robot   *Robot
-	Message *Message
-	Match   []string
+	Robot *Robot
+	// Message *Message
+	Match []string
+	*Envelope
 }
 
 // Envelope contains metadata about the chat message.
@@ -15,21 +16,32 @@ type Envelope struct {
 }
 
 // NewResponse returns a new Response object
-func NewResponse(robot *Robot, msg *Message) *Response {
+func NewResponseFromMessage(robot *Robot, msg *Message) *Response {
 	return &Response{
-		Message: msg,
-		Robot:   robot,
+		Robot: robot,
+		Envelope: &Envelope{
+			Room:    msg.Room,
+			User:    &msg.User,
+			Message: msg,
+		},
+	}
+}
+
+func NewResponse(robot *Robot) *Response {
+	return &Response{
+		Robot:    robot,
+		Envelope: &Envelope{},
 	}
 }
 
 // UserID returns the id of the Message's User
 func (res *Response) UserID() string {
-	return res.Message.User.ID
+	return res.Envelope.User.ID
 }
 
 // UserName returns the id of the Message's User
 func (res *Response) UserName() string {
-	return res.Message.User.Name
+	return res.Envelope.User.Name
 }
 
 // UserRoles returns the roles of the Message's User
@@ -39,12 +51,12 @@ func (res *Response) UserRoles() []string {
 
 // Room is the room of the response's message
 func (res *Response) Room() string {
-	return res.Message.Room
+	return res.Envelope.Room
 }
 
 // Text is the text of the response's message
 func (res *Response) Text() string {
-	return res.Message.Text
+	return res.Envelope.Message.Text
 }
 
 // Send posts a message back to the chat source

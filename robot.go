@@ -71,9 +71,9 @@ func (robot *Robot) Receive(msg *Message) error {
 	}
 
 	for _, handler := range robot.handlers {
-		response := NewResponse(robot, msg)
-		err := handler.Handle(response)
-		if err != nil {
+		response := NewResponseFromMessage(robot, msg)
+
+		if err := handler.Handle(response); err != nil {
 			Logger.Error(err)
 			return err
 		}
