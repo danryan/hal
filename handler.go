@@ -105,7 +105,8 @@ func NewHandler(h handler) handler {
 	return h
 }
 
-// BasicHandler type
+// BasicHandler is used to construct handlers that are low complexity and may
+// not benefit from creating a custom handler type.
 type BasicHandler struct {
 	Method  string
 	Pattern string
