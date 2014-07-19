@@ -2,6 +2,8 @@
 
 A chat bot in Go, now with 100% less CoffeeScript!
 
+[![](http://img.shields.io/badge/everything-AWESOME-brightgreen.svg)](http://youtu.be/StTqXEQ2l-Y "Everything status: AWESOME")
+
 ## Getting started
 
 "Good morning, Dr. Chandra. This is HAL. I'm ready for my first lesson."
