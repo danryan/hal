@@ -8,9 +8,6 @@ type ping struct {
 	hal.Handler
 }
 
-// Ping exports
-func Ping() *ping { return new(ping) }
-
 func (h *ping) Method() string {
 	return hal.RESPOND
 }
@@ -26,3 +23,6 @@ func (h *ping) Pattern() string {
 func (h *ping) Run(res *hal.Response) error {
 	return res.Send("PONG")
 }
+
+// Ping exports
+var Ping = &ping{}
