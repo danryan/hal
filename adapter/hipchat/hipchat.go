@@ -1,6 +1,7 @@
 package hipchat
 
 import (
+	"fmt"
 	"github.com/daneharrigan/hipchat"
 	"github.com/danryan/env"
 	"github.com/danryan/hal"
@@ -70,7 +71,8 @@ func (a *adapter) Send(res *hal.Response, strings ...string) error {
 func (a *adapter) Reply(res *hal.Response, strings ...string) error {
 	newStrings := make([]string, len(strings))
 	for _, str := range strings {
-		newStrings = append(newStrings, res.UserName()+`: `+str)
+		s := fmt.Sprintf("@%s: %s", mentionName(res.Envelope.User), str)
+		newStrings = append(newStrings, s)
 	}
 
 	return a.Send(res, newStrings...)
@@ -105,13 +107,18 @@ func (a *adapter) newMessage(msg *hipchat.Message) *hal.Message {
 	user, _ := a.Robot.Users.GetByName(from[1])
 
 	return &hal.Message{
-		User: hal.User{
-			ID:   user.ID,
-			Name: user.Name,
-		},
+		User: user,
 		Room: from[0],
 		Text: msg.Body,
 	}
+}
+
+func mentionName(u *hal.User) string {
+	mn, ok := u.Options["mentionName"]
+	if !ok {
+		return ""
+	}
+	return mn.(string)
 }
 
 func (a *adapter) startConnection() error {
@@ -131,10 +138,24 @@ func (a *adapter) startConnection() error {
 			// skip adding the bot to the users map
 			continue
 		}
-		// prepopulate our users map because we can easily do so
-		// if a user doesn't exist, set it
-		if _, err := a.Robot.Users.Get(user.Id); err != nil {
-			a.Robot.Users.Set(user.Id, hal.User{ID: user.Id, Name: user.Name})
+		// Initialize a newUser object in case we need it.
+		newUser := hal.User{
+			ID:   user.Id,
+			Name: user.Name,
+			Options: map[string]interface{}{
+				"mentionName": user.MentionName,
+			},
+		}
+		// Prepopulate our users map because we can easily do so.
+		// If a user doesn't exist, set it.
+		u, err := a.Robot.Users.Get(user.Id)
+		if err != nil {
+			a.Robot.Users.Set(user.Id, newUser)
+		}
+		// If the user doesn't match completely (say, if someone changes their name),
+		// then adjust what we have stored.
+		if u.Name != user.Name || mentionName(&u) != user.MentionName {
+			a.Robot.Users.Set(user.Id, newUser)
 		}
 	}
 
