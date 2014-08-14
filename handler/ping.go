@@ -4,9 +4,7 @@ import (
 	"github.com/danryan/hal"
 )
 
-type ping struct {
-	hal.Handler
-}
+type ping struct{}
 
 func (h *ping) Method() string {
 	return hal.RESPOND
