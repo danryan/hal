@@ -15,7 +15,10 @@ func NewAuth(r *Robot) *Auth {
 		a.admins = strings.Split(admins, ",")
 	}
 
-	r.Handle(assignUserRoleHandler)
+	r.Handle(
+		addUserRoleHandler,
+		removeUserRoleHandler,
+	)
 
 	return a
 }
@@ -73,7 +76,30 @@ func (a *Auth) addRole(u User, r string) error {
 	return nil
 }
 
-func assignUserRole(res *Response) error {
+func (a *Auth) removeRole(u User, r string) error {
+	if r == "admin" {
+		return fmt.Errorf(`the "admin" role can only be defined by the HAL_AUTH_ADMIN environment variable`)
+	}
+
+	if !a.HasRole(u.ID, r) {
+		return fmt.Errorf("%s already did not have the %s role", u.Name, r)
+	}
+
+	roles := make([]string, len(u.Roles)-1)
+
+	for _, role := range u.Roles {
+		if role != r {
+			roles = append(roles, r)
+		}
+	}
+
+	u.Roles = roles
+	a.robot.Users.Set(u.ID, u)
+
+	return nil
+}
+
+func addUserRole(res *Response) error {
 	n := strings.TrimSpace(res.Match[1])
 	r := strings.ToLower(res.Match[3])
 
@@ -85,7 +111,7 @@ func assignUserRole(res *Response) error {
 
 	u, err := res.Robot.Users.GetByName(n)
 	if err != nil {
-		return res.Reply(n + " does not exist")
+		return res.Reply(err.Error())
 	}
 
 	if err := res.Robot.Auth.addRole(u, r); err != nil {
@@ -95,8 +121,36 @@ func assignUserRole(res *Response) error {
 	return res.Reply(fmt.Sprintf("%s now has the %s role", n, r))
 }
 
-var assignUserRoleHandler = &Handler{
-	Pattern: `(?i)@?(.+) (has) (["'\w: -_]+) (role)`,
+var addUserRoleHandler = &Handler{
+	Pattern: `(?i)@?(.+) (has)(?: the)? (["'\w: -_]+) (role)`,
 	Method:  RESPOND,
-	Run:     assignUserRole,
+	Run:     addUserRole,
+}
+
+func removeUserRole(res *Response) error {
+	n := strings.TrimSpace(res.Match[1])
+	r := strings.ToLower(res.Match[3])
+
+	for _, i := range []string{"", "who", "what", "where", "when", "why"} {
+		if i == n {
+			return nil // don't match
+		}
+	}
+
+	u, err := res.Robot.Users.GetByName(n)
+	if err != nil {
+		return res.Reply(err.Error())
+	}
+
+	if err := res.Robot.Auth.removeRole(u, r); err != nil {
+		return res.Reply(err.Error())
+	}
+
+	return res.Reply(fmt.Sprintf("%s no longer has the %s role", n, r))
+}
+
+var removeUserRoleHandler = &Handler{
+	Pattern: `(?i)@?(.+) (doesn't have|does not have)(?: the)? (["'\w: -_]+) (role)`,
+	Method:  RESPOND,
+	Run:     removeUserRole,
 }
