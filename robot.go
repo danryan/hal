@@ -51,11 +51,16 @@ func NewRobot() (*Robot, error) {
 }
 
 // Handle registers a new handler with the robot
-func (robot *Robot) Handle(handlers ...handler) {
+func (robot *Robot) Handle(handlers ...interface{}) {
 	for _, h := range handlers {
-		robot.handlers = append(robot.handlers, NewHandler(h))
+		nh, err := NewHandler(h)
+		if err != nil {
+			Logger.Fatal(err)
+			panic(err)
+		}
+
+		robot.handlers = append(robot.handlers, nh)
 	}
-	// robot.handlers = append(robot.handlers, handlers...)
 }
 
 // Receive dispatches messages to our handlers

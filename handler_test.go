@@ -4,11 +4,11 @@ import (
 	"github.com/danryan/hal"
 )
 
-func ExampleBasicHandler_hear() {
+func ExampleHandler_hear() {
 	res := hal.Response{
 		Match: []string{},
 	}
-	h := &hal.BasicHandler{
+	h := &hal.Handler{
 		Method:  hal.HEAR,
 		Pattern: `echo (.+)`,
 		Usage:   "echo <string> - repeats <string> back",
@@ -21,8 +21,8 @@ func ExampleBasicHandler_hear() {
 	// foo bar baz
 }
 
-func ExampleBasicHandler_respond() {
-	&BasicHandler{
+func ExampleHandler_respond() {
+	&Handler{
 		Method:  hal.RESPOND,
 		Pattern: `(?i)ping`, // (?i) is a flag that makes the match case insensitive
 		Usage:   `hal ping - replies with "PONG"`,
