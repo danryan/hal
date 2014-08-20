@@ -28,7 +28,7 @@ func run() int {
 		return res.Send("BAR")
 	})
 
-	tableFlipHandler := &hal.BasicHandler{
+	tableFlipHandler := &hal.Handler{
 		Method:  hal.HEAR,
 		Pattern: `tableflip`,
 		Run: func(res *hal.Response) error {
@@ -45,8 +45,8 @@ func run() int {
 		// exactly in the way you would expect.
 		handler.Ping,
 
-		// Or use a hal.BasicHandler structure complete with usage...
-		&hal.BasicHandler{
+		// Or use a hal.Handler structure complete with usage...
+		&hal.Handler{
 			Method:  hal.RESPOND,
 			Pattern: `SYN`,
 			Usage:   `hal syn - replies with "ACK"`,
