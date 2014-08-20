@@ -28,8 +28,13 @@ func NewUserMap(robot *Robot) *UserMap {
 }
 
 // All returns the underlying map of all users
-func (um *UserMap) All() map[string]User {
-	return um.Map
+func (um *UserMap) All() []User {
+	users := make([]User, len(um.Map))
+	for _, user := range um.Map {
+		users = append(users, user)
+	}
+
+	return users
 }
 
 // Get looks up a user by id and returns a User object

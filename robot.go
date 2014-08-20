@@ -16,6 +16,7 @@ type Robot struct {
 	Store      Store
 	handlers   []handler
 	Users      *UserMap
+	Auth       *Auth
 	signalChan chan os.Signal
 }
 
@@ -45,7 +46,9 @@ func NewRobot() (*Robot, error) {
 		return nil, err
 	}
 	robot.SetStore(store)
+
 	robot.Users = NewUserMap(robot)
+	robot.Auth = NewAuth(robot)
 
 	return robot, nil
 }
