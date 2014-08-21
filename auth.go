@@ -151,104 +151,96 @@ func (a *Auth) IsAdmin(user User) bool {
 var addUserRoleHandler = &Handler{
 	Pattern: `(?i)@?(.+) (?:has)(?: the)? (["'\w: -_]+) (?:role)`,
 	Method:  RESPOND,
-	Run:     addUserRole,
-}
+	Run: func(res *Response) error {
+		name := strings.TrimSpace(res.Match[1])
+		role := strings.ToLower(res.Match[2])
 
-func addUserRole(res *Response) error {
-	name := strings.TrimSpace(res.Match[1])
-	role := strings.ToLower(res.Match[2])
-
-	for _, s := range []string{"", "who", "what", "where", "when", "why"} {
-		if s == name {
-			return nil // don't match
+		for _, s := range []string{"", "who", "what", "where", "when", "why"} {
+			if s == name {
+				return nil // don't match
+			}
 		}
-	}
 
-	user, err := res.Robot.Users.GetByName(name)
-	if err != nil {
-		return res.Reply(err.Error())
-	}
+		user, err := res.Robot.Users.GetByName(name)
+		if err != nil {
+			return res.Reply(err.Error())
+		}
 
-	if err := res.Robot.Auth.AddRole(user, role); err != nil {
-		return res.Reply(err.Error())
-	}
+		if err := res.Robot.Auth.AddRole(user, role); err != nil {
+			return res.Reply(err.Error())
+		}
 
-	return res.Reply(fmt.Sprintf("%s now has the %s role", name, role))
+		return res.Reply(fmt.Sprintf("%s now has the %s role", name, role))
+	},
 }
 
 var removeUserRoleHandler = &Handler{
 	Pattern: `(?i)@?(.+) (?:does(?:n't| not) have)(?: the)? (["'\w: -_]+) (role)`,
 	Method:  RESPOND,
-	Run:     removeUserRole,
-}
+	Run: func(res *Response) error {
+		name := strings.TrimSpace(res.Match[1])
+		role := strings.ToLower(res.Match[2])
 
-func removeUserRole(res *Response) error {
-	name := strings.TrimSpace(res.Match[1])
-	role := strings.ToLower(res.Match[2])
-
-	for _, s := range []string{"", "who", "what", "where", "when", "why"} {
-		if s == name {
-			return nil // don't match
+		for _, s := range []string{"", "who", "what", "where", "when", "why"} {
+			if s == name {
+				return nil // don't match
+			}
 		}
-	}
 
-	user, err := res.Robot.Users.GetByName(name)
-	if err != nil {
-		return res.Reply(err.Error())
-	}
+		user, err := res.Robot.Users.GetByName(name)
+		if err != nil {
+			return res.Reply(err.Error())
+		}
 
-	if err := res.Robot.Auth.RemoveRole(user, role); err != nil {
-		return res.Reply(err.Error())
-	}
+		if err := res.Robot.Auth.RemoveRole(user, role); err != nil {
+			return res.Reply(err.Error())
+		}
 
-	return res.Reply(fmt.Sprintf("%s no longer has the %s role", name, role))
+		return res.Reply(fmt.Sprintf("%s no longer has the %s role", name, role))
+	},
 }
 
 var listUserRolesHandler = &Handler{
 	Pattern: `(?i)(?:what roles? does) @?(.+) (?:have)\??`,
 	Method:  RESPOND,
-	Run:     listUserRoles,
-}
+	Run: func(res *Response) error {
+		name := res.Match[1]
 
-func listUserRoles(res *Response) error {
-	name := res.Match[1]
+		user, err := res.Robot.Users.GetByName(name)
+		// return if we didn't find a user
+		if err != nil {
+			res.Reply(err.Error())
+		}
 
-	user, err := res.Robot.Users.GetByName(name)
-	// return if we didn't find a user
-	if err != nil {
-		res.Reply(err.Error())
-	}
+		roles := user.Roles
 
-	roles := user.Roles
+		if res.Robot.Auth.IsAdmin(user) {
+			roles = append(roles, "admin")
+		}
 
-	if res.Robot.Auth.IsAdmin(user) {
-		roles = append(roles, "admin")
-	}
+		if len(roles) == 0 {
+			return res.Reply(name + " has no roles")
+		}
 
-	if len(roles) == 0 {
-		return res.Reply(name + " has no roles")
-	}
-
-	return res.Reply(fmt.Sprintf("%s has the following roles: %s", name, strings.Join(roles, ", ")))
+		return res.Reply(fmt.Sprintf("%s has the following roles: %s", name, strings.Join(roles, ", ")))
+	},
 }
 
 var listAdminsHandler = &Handler{
 	Pattern: `who (?:has)(?: the)? admin role\??`,
 	Method:  RESPOND,
-	Run:     listAdmins,
-}
+	Run: func(res *Response) error {
+		admins := res.Robot.Auth.Admins()
+		names := make([]string, len(admins))
 
-func listAdmins(res *Response) error {
-	admins := res.Robot.Auth.Admins()
-	names := make([]string, len(admins))
+		if len(names) == 0 {
+			return res.Reply(`no users have the "admin" role`)
+		}
 
-	if len(names) == 0 {
-		return res.Reply(`no users have the "admin" role`)
-	}
+		for i, u := range admins {
+			names[i] = u.Name
+		}
 
-	for i, u := range admins {
-		names[i] = u.Name
-	}
-
-	return res.Reply(fmt.Sprintf(`the following users have the "admin" role: %s`, strings.Join(names, ", ")))
+		return res.Reply(fmt.Sprintf(`the following users have the "admin" role: %s`, strings.Join(names, ", ")))
+	},
 }
