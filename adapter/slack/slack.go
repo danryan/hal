@@ -201,10 +201,12 @@ func (a *adapter) parseRequest(form url.Values) *slackRequest {
 }
 
 type slackPayload struct {
-	Channel   string `json:"channel,omitempty"`
-	Username  string `json:"username,omitempty"`
-	Text      string `json:"text,omitempty"`
-	IconEmoji string `json:"icon_emoji,omitempty"`
+	Channel     string `json:"channel,omitempty"`
+	Username    string `json:"username,omitempty"`
+	Text        string `json:"text,omitempty"`
+	IconEmoji   string `json:"icon_emoji,omitempty"`
+	UnfurlLinks bool   `json:"unfurl_links,omitempty"`
+	Fallback    string `json:"fallback,omitempty"`
 }
 
 // the payload of an inbound request (from Slack to us).
@@ -268,7 +270,20 @@ func (a *adapter) sendHTTP(res *hal.Response, strings ...string) error {
 			Text:     str,
 		}
 
-		u := fmt.Sprintf("https://%s.slack/com/services/hooks/hubot?token=%s", a.team, a.token)
+		opts := res.Envelope.Options
+		if i, ok := opts["iconEmoji"]; ok {
+			s.IconEmoji = i.(string)
+		}
+
+		if i, ok := opts["unfurlLinks"]; ok {
+			s.UnfurlLinks = i.(bool)
+		}
+
+		if i, ok := opts["fallback"]; ok {
+			s.Fallback = i.(string)
+		}
+
+		u := fmt.Sprintf("https://%s.slack.com/services/hooks/incoming-webhook?token=%s", a.team, a.token)
 		payload, _ := json.Marshal(s)
 		data := url.Values{}
 		data.Set("payload", string(payload))
