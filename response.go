@@ -10,8 +10,17 @@ type Response struct {
 
 // Envelope contains metadata about the chat message.
 type Envelope struct {
-	Room string
-	User *User
+	Room    string
+	User    *User
+	Options map[string]interface{}
+}
+
+// Options type
+type Options map[string]interface{}
+
+// SetOptions sets the Envelope's Options
+func (e *Envelope) SetOptions(opts map[string]interface{}) {
+	e.Options = opts
 }
 
 // NewResponseFromMessage returns a new Response object with an associated Message
