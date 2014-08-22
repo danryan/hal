@@ -1,7 +1,10 @@
 .. _adapters:
 
+========
 Adapters
 ========
+
+Adapters are how hal integrates with your chat services.
 
 .. toctree::
   :maxdepth: 1
@@ -11,9 +14,4 @@ Adapters
   irc
   slack
   shell
-
-
-Creating a new adapter
-----------------------
-
-Soon!
+  custom_adapter

@@ -1,6 +1,8 @@
-===================
-Writing a new store
-===================
+.. _custom_store:
+
+=====================
+Adding a Custom Store
+=====================
 
 Providing support for a new backend is fairly uncomplicated. Taking
 advantage of Go's interface type, we simply need a new struct type that

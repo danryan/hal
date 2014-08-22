@@ -9,4 +9,4 @@ Stores
 
   memory
   redis
-  creating_a_new_store
+  custom_store
