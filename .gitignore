@@ -1,3 +1,4 @@
 bin/hal
 examples/local.go
 .env
+docs/build/*
