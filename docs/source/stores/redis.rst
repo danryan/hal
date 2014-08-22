@@ -1,9 +1,13 @@
+=====
+Redis
+=====
+
 Setup
 ~~~~~
 
 The Redis store requires an available Redis server. Authentication and
 custom databases are not supported at this time. Please `open an
-issue <../issues>`__ if you need this support!
+issue <https://github.com/danryan/hal/issues>`__ if you need this support!
 
 Configuration
 ~~~~~~~~~~~~~

@@ -1,12 +1,13 @@
 .. _glossary:
 
+========
 Glossary
 ========
 
 .. glossary::
   :sorted:
 
-  hal
+  Hal
       Hal is a chat bot framework written in the Go programming language.
 
   Adapter

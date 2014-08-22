@@ -1,3 +1,7 @@
+=====
+Shell
+=====
+
 Hal comes with a default shell adapter, useful for testing your response
 handlers locally.
 

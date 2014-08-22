@@ -1,3 +1,6 @@
+.. _configuration:
+
+
 Hal doesn't have any command line options. Instead we utilize
 environment variables exclusively, allowing you to use hal in more
 flexible ways.

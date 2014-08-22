@@ -1,4 +1,4 @@
-.. _Stores:
+.. _stores:
 
 Stores
 ========
@@ -8,4 +8,4 @@ Stores
 
   memory
   redis
-  creating-a-new-store
+  creating_a_new_store

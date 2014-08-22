@@ -1,3 +1,7 @@
+===
+IRC
+===
+
 A simple adapter for use with any IRC server.
 
 Setup

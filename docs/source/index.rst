@@ -1,15 +1,16 @@
-.. _Hal:
-
+===
 Hal
-========
+===
+
+Contents:
 
 .. toctree::
   :maxdepth: 2
 
-  configuration
-  usage
-  adapters
-  stores
+  config/index
+  .. usage
+  adapters/index
+  stores/index
   handlers
 
 
