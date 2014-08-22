@@ -8,10 +8,9 @@ Contents:
   :maxdepth: 2
 
   config/index
-  .. usage
   adapters/index
   stores/index
-  handlers
+  handlers/index
 
 
 Appendices

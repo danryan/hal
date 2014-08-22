@@ -1,7 +1,8 @@
 .. _stores:
 
+======
 Stores
-========
+======
 
 .. toctree::
   :maxdepth: 1

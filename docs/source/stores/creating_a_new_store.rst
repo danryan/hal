@@ -1,6 +1,10 @@
+===================
+Writing a new store
+===================
+
 Providing support for a new backend is fairly uncomplicated. Taking
 advantage of Go's interface type, we simply need a new struct type that
-meets the ``hal.Store`` interface (plus a handful of helper functions,
+implements the ``hal.Store`` interface (plus a handful of helper functions,
 but we'll get to that). Let's take a look at the default memory adapter
 to see how one works.
 
