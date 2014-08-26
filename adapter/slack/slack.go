@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/danryan/env"
 	"github.com/danryan/hal"
 	irc "github.com/thoj/go-ircevent"
-	"net/http"
-	"net/url"
 )
 
 func init() {
@@ -201,12 +202,21 @@ func (a *adapter) parseRequest(form url.Values) *slackRequest {
 }
 
 type slackPayload struct {
-	Channel     string `json:"channel,omitempty"`
-	Username    string `json:"username,omitempty"`
-	Text        string `json:"text,omitempty"`
-	IconEmoji   string `json:"icon_emoji,omitempty"`
-	UnfurlLinks bool   `json:"unfurl_links,omitempty"`
-	Fallback    string `json:"fallback,omitempty"`
+	Channel     string                   `json:"channel,omitempty"`
+	Username    string                   `json:"username,omitempty"`
+	Text        string                   `json:"text,omitempty"`
+	IconEmoji   string                   `json:"icon_emoji,omitempty"`
+	IconURL     string                   `json:"icon_url,omitempty"`
+	UnfurlLinks bool                     `json:"unfurl_links,omitempty"`
+	Fallback    string                   `json:"fallback,omitempty"`
+	Color       string                   `json:"color,omitempty"`
+	Fields      []map[string]interface{} `json:"fields,omitempty"`
+}
+
+type slackField struct {
+	Title string `json:"title,omitempty"`
+	Value string `json:"value,omitempty"`
+	Short bool   `json:"short,omitempty"`
 }
 
 // the payload of an inbound request (from Slack to us).
@@ -275,6 +285,10 @@ func (a *adapter) sendHTTP(res *hal.Response, strings ...string) error {
 			s.IconEmoji = i.(string)
 		}
 
+		if i, ok := opts["iconURL"]; ok {
+			s.IconURL = i.(string)
+		}
+
 		if i, ok := opts["unfurlLinks"]; ok {
 			s.UnfurlLinks = i.(bool)
 		}
@@ -283,11 +297,18 @@ func (a *adapter) sendHTTP(res *hal.Response, strings ...string) error {
 			s.Fallback = i.(string)
 		}
 
+		if i, ok := opts["color"]; ok {
+			s.Color = i.(string)
+		}
+
+		if i, ok := opts["fields"]; ok {
+			s.Fields = i.([]map[string]interface{})
+		}
+
 		u := fmt.Sprintf("https://%s.slack.com/services/hooks/incoming-webhook?token=%s", a.team, a.token)
 		payload, _ := json.Marshal(s)
 		data := url.Values{}
 		data.Set("payload", string(payload))
-
 		client := http.Client{}
 		_, err := client.PostForm(u, data)
 		if err != nil {
