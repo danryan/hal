@@ -13,6 +13,16 @@ type User struct {
 	Options map[string]interface{}
 }
 
+func (u *User) Get(k string) interface{} {
+	return nil
+}
+
+func NewUser() *User {
+	return &User{
+		Options: make(map[string]interface{}),
+	}
+}
+
 // UserMap handles the known users
 type UserMap struct {
 	Map   map[string]User
@@ -50,14 +60,21 @@ func (um *UserMap) Get(id string) (User, error) {
 func (um *UserMap) GetByName(name string) (User, error) {
 	for _, user := range um.Map {
 		if user.Name == name {
+			if user.Options == nil {
+				user.Options = make(map[string]interface{})
+			}
 			return user, nil
 		}
 	}
-	return User{}, fmt.Errorf("could not find user with name %s", name)
+	return User{Options: make(map[string]interface{})}, fmt.Errorf("could not find user with name %s", name)
 }
 
 // Set adds or updates a user in the UserMap and persists it to the store
 func (um *UserMap) Set(id string, user User) error {
+	// initialize user.Options if nothing's in there yet
+	if user.Options == nil {
+		user.Options = make(map[string]interface{})
+	}
 	um.Map[id] = user
 	if err := um.Save(); err != nil {
 		return err
