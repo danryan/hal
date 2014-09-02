@@ -9,9 +9,9 @@ By default, Hal uses Slack's hubot integration. Currently Hal will
 listen in on all public channels. In the future, you'll be able to
 specify channels by either a whitelist or blacklist. Private groups
 require the IRC gateway to work around a current limitation of the Slack
-API. See `Using IRC <#irc-gateway>`__. The IRC gateway is the author's
+API. See `Using IRC Gateway`_. The IRC gateway is the author's
 preferred method as your bot will automatically join all channels and
-groups it belongs to, and removing Hal from a room is as simple as a
+groups to which it belongs, and removing Hal from a room is as simple as a
 ``/kick hal`` command. Some advanced features like attachment uploading
 are not supported at this time.
 
@@ -63,8 +63,7 @@ API or the IRC gateway.
 
 2. `Register <https://my.slack.com/signup>`__ a new user
 3. Sign in as this new user
-4. Capture your new `IRC
-   credentials <https://my.slack.com/account/gateways>`__
+4. Capture your new `IRC credentials <https://my.slack.com/account/gateways>`__
 5. Set the following environment variables
 
 ::
