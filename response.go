@@ -43,22 +43,22 @@ func NewResponse(robot *Robot) *Response {
 	}
 }
 
-// UserID returns the id of the Message's User
+// UserID returns the id of the Envelope's User
 func (res *Response) UserID() string {
 	return res.Envelope.User.ID
 }
 
-// UserName returns the id of the Message's User
+// UserName returns the id of the Envelope's User
 func (res *Response) UserName() string {
 	return res.Envelope.User.Name
 }
 
-// UserRoles returns the roles of the Message's User
+// UserRoles returns the roles of the Envelope's User
 func (res *Response) UserRoles() []string {
-	return res.Message.User.Roles
+	return res.Envelope.User.Roles
 }
 
-// Room is the room of the response's message
+// Room returns the Envelope room of the response's message
 func (res *Response) Room() string {
 	return res.Envelope.Room
 }
