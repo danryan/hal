@@ -6,8 +6,7 @@ Setup
 ~~~~~
 
 By default, Hal uses Slack's hubot integration. Currently Hal will
-listen in on all public channels. In the future, you'll be able to
-specify channels by either a whitelist or blacklist. Private groups
+listen in on all public channels, or a custom list of channels if ``HAL_SLACK_CHANNELS`` is declared. Private groups
 require the IRC gateway to work around a current limitation of the Slack
 API. See `Using IRC Gateway`_. The IRC gateway is the author's
 preferred method as your bot will automatically join all channels and
@@ -41,8 +40,19 @@ Configuration
     HAL_SLACK_ICON_EMOJI=":poop:"   # The emoji shortcut used as the response icon
                                     # Default: none
     HAL_SLACK_CHANNELS=""           # not yet implemented
-    HAL_SLACK_CHANNELMODE=""        # not yet implemented
+    HAL_SLACK_CHANNEL_MODE=""        # 
     HAL_SLACK_LINK_NAMES=""         # not yet implemented
+
+``HAL_SLACK_CHANNEL_MODE``
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Specify how to treat the list of channels in ``HAL_SLACK_CHANNELS```. Disabled if ``HAL_SLACK_CHANNELS`` is empty.
+
+- **Options:** whitelist, blacklist
+- **Default:** whitelist
+- **Required:** false
+- **Example:** ``HAL_SLACK_CHANNEL_MODE=whitelist``
+- 
 
 Using IRC Gateway
 ^^^^^^^^^^^^^^^^^

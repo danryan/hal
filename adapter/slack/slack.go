@@ -1,15 +1,14 @@
 package slack
 
 import (
-	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
+	"os"
+	"strings"
 
 	"github.com/danryan/env"
 	"github.com/danryan/hal"
+	"github.com/davecgh/go-spew/spew"
 	irc "github.com/thoj/go-ircevent"
 )
 
@@ -22,7 +21,8 @@ type adapter struct {
 	token          string
 	team           string
 	mode           string
-	channels       string //[]string
+	channels       []string
+	channelMode    string
 	botname        string
 	responseMethod string
 	iconEmoji      string
@@ -42,16 +42,19 @@ type config struct {
 	IrcEnabled     bool   `env:"key=HAL_SLACK_IRC_ENABLED default=false"`
 	IrcPassword    string `env:"key=HAL_SLACK_IRC_PASSWORD"`
 	ResponseMethod string `env:"key=HAL_SLACK_RESPONSE_METHOD default=http"`
+	ChannelMode    string `env:"key=HAL_SLACK_CHANNEL_MODE "`
 }
 
 // New returns an initialized adapter
 func New(r *hal.Robot) (hal.Adapter, error) {
 	c := &config{}
 	env.MustProcess(c)
+	channels := strings.Split(c.Channels, ",")
 	a := &adapter{
 		token:          c.Token,
 		team:           c.Team,
-		channels:       c.Channels,
+		channels:       channels,
+		channelMode:    c.ChannelMode,
 		mode:           c.Mode,
 		botname:        c.Botname,
 		iconEmoji:      c.IconEmoji,
@@ -59,6 +62,12 @@ func New(r *hal.Robot) (hal.Adapter, error) {
 		ircPassword:    c.IrcPassword,
 		responseMethod: c.ResponseMethod,
 	}
+	spew.Dump(c)
+	hal.Logger.Debugf("%v", os.Getenv("HAL_SLACK_CHANNEL_MODE"))
+	hal.Logger.Debugf("channel mode: %v", a.channelMode)
+	// if a.channelMode == "" {
+	// a.channelMode = "whitelist"
+	// }
 	a.SetRobot(r)
 	return a, nil
 }
@@ -102,8 +111,7 @@ func (a *adapter) Emote(res *hal.Response, strings ...string) error {
 
 // Topic sets the topic
 func (a *adapter) Topic(res *hal.Response, strings ...string) error {
-	for _, str := range strings {
-		_ = str
+	for _ = range strings {
 	}
 	return nil
 }
@@ -116,10 +124,29 @@ func (a *adapter) Play(res *hal.Response, strings ...string) error {
 // Receive forwards a message to the robot
 func (a *adapter) Receive(msg *hal.Message) error {
 	hal.Logger.Debug("slack - adapter received message")
-	a.Robot.Receive(msg)
-	hal.Logger.Debug("slack - adapter sent message to robot")
 
-	return nil
+	if len(a.channels) > 0 {
+		if a.channelMode == "blacklist" {
+			if !a.inChannels(msg.Room) {
+				hal.Logger.Debugf("slack - %s not in blacklist", msg.Room)
+				hal.Logger.Debug("slack - adapter sent message to robot")
+				return a.Robot.Receive(msg)
+			}
+			hal.Logger.Debug("slack - message ignored due to blacklist")
+			return nil
+		}
+
+		if a.inChannels(msg.Room) {
+			hal.Logger.Debugf("slack - %s in whitelist", msg.Room)
+			hal.Logger.Debug("slack - adapter sent message to robot")
+			return a.Robot.Receive(msg)
+		}
+		hal.Logger.Debug("slack - message ignored due to whitelist")
+		return nil
+	}
+
+	hal.Logger.Debug("slack - adapter sent message to robot")
+	return a.Robot.Receive(msg)
 }
 
 // Run starts the adapter
@@ -138,19 +165,8 @@ func (a *adapter) Run() error {
 		hal.Logger.Debug("slack - added HTTP request handlers")
 	}
 
+	hal.Logger.Debugf("slack - channelmode=%v channels=%v", a.channelMode, a.channels)
 	return nil
-}
-
-func (a *adapter) slackHandler(w http.ResponseWriter, r *http.Request) {
-	hal.Logger.Debug("slack - HTTP handler received message")
-
-	r.ParseForm()
-	parsedRequest := a.parseRequest(r.Form)
-	message := a.newMessageFromHTTP(parsedRequest)
-
-	// hal.Logger.Debug(message)
-	a.Receive(message)
-	w.Write([]byte(""))
 }
 
 // Stop shuts down the adapter
@@ -164,170 +180,12 @@ func (a *adapter) Stop() error {
 	return nil
 }
 
-func (a *adapter) newMessageFromHTTP(req *slackRequest) *hal.Message {
-	return &hal.Message{
-		User: hal.User{
-			ID:   req.UserID,
-			Name: req.UserName,
-		},
-		Room: req.ChannelID,
-		Text: req.Text,
-	}
-}
-
-func (a *adapter) newMessageFromIRC(req *irc.Event) *hal.Message {
-	return &hal.Message{
-		User: hal.User{
-			ID:   req.Nick,
-			Name: req.Nick,
-		},
-		Room: req.Arguments[0],
-		Text: req.Message(),
-	}
-}
-
-func (a *adapter) parseRequest(form url.Values) *slackRequest {
-	return &slackRequest{
-		ChannelID:   form.Get("channel_id"),
-		ChannelName: form.Get("channel_name"),
-		ServiceID:   form.Get("service_id"),
-		TeamID:      form.Get("team_id"),
-		TeamDomain:  form.Get("team_domain"),
-		Text:        form.Get("text"),
-		Timestamp:   form.Get("timestamp"),
-		Token:       form.Get("token"),
-		UserID:      form.Get("user_id"),
-		UserName:    form.Get("user_name"),
-	}
-}
-
-type slackPayload struct {
-	Channel     string                   `json:"channel,omitempty"`
-	Username    string                   `json:"username,omitempty"`
-	Text        string                   `json:"text,omitempty"`
-	IconEmoji   string                   `json:"icon_emoji,omitempty"`
-	IconURL     string                   `json:"icon_url,omitempty"`
-	UnfurlLinks bool                     `json:"unfurl_links,omitempty"`
-	Fallback    string                   `json:"fallback,omitempty"`
-	Color       string                   `json:"color,omitempty"`
-	Fields      []map[string]interface{} `json:"fields,omitempty"`
-}
-
-type slackField struct {
-	Title string `json:"title,omitempty"`
-	Value string `json:"value,omitempty"`
-	Short bool   `json:"short,omitempty"`
-}
-
-// the payload of an inbound request (from Slack to us).
-type slackRequest struct {
-	ChannelID   string
-	ChannelName string
-	ServiceID   string
-	TeamID      string
-	TeamDomain  string
-	Text        string
-	Timestamp   string
-	Token       string
-	UserID      string
-	UserName    string
-}
-
-func (a *adapter) startIRCConnection() {
-	con := irc.IRC(a.botname, a.botname)
-	con.UseTLS = true
-	// con.Debug = true
-	con.Password = a.ircPassword
-	con.TLSConfig = &tls.Config{ServerName: "*.irc.slack.com"}
-	err := con.Connect(a.ircServer())
-	if err != nil {
-		panic("failed to connect to" + err.Error())
-	}
-
-	con.AddCallback("001", func(e *irc.Event) {
-		for _, channel := range a.channels {
-			hal.Logger.Info(channel)
-		}
-	})
-
-	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		hal.Logger.Debug("slack - IRC handler received message")
-
-		message := a.newMessageFromIRC(e)
-		a.Receive(message)
-	})
-
-	a.ircConnection = con
-	con.Loop()
-}
-
-func (a *adapter) stopIRCConnection() {
-	hal.Logger.Debug("Stopping slack IRC connection")
-	a.ircConnection.Quit()
-	hal.Logger.Debug("Stopped slack IRC connection")
-}
-
-func (a *adapter) ircServer() string {
-	return a.team + `.irc.slack.com:6667`
-}
-
-func (a *adapter) sendHTTP(res *hal.Response, strings ...string) error {
-	hal.Logger.Debug("slack - sending HTTP response")
-	for _, str := range strings {
-		s := &slackPayload{
-			Username: a.botname,
-			Channel:  res.Message.Room,
-			Text:     str,
-		}
-
-		opts := res.Envelope.Options
-		if i, ok := opts["iconEmoji"]; ok {
-			s.IconEmoji = i.(string)
-		}
-
-		if i, ok := opts["iconURL"]; ok {
-			s.IconURL = i.(string)
-		}
-
-		if i, ok := opts["unfurlLinks"]; ok {
-			s.UnfurlLinks = i.(bool)
-		}
-
-		if i, ok := opts["fallback"]; ok {
-			s.Fallback = i.(string)
-		}
-
-		if i, ok := opts["color"]; ok {
-			s.Color = i.(string)
-		}
-
-		if i, ok := opts["fields"]; ok {
-			s.Fields = i.([]map[string]interface{})
-		}
-
-		u := fmt.Sprintf("https://%s.slack.com/services/hooks/incoming-webhook?token=%s", a.team, a.token)
-		payload, _ := json.Marshal(s)
-		data := url.Values{}
-		data.Set("payload", string(payload))
-		client := http.Client{}
-		_, err := client.PostForm(u, data)
-		if err != nil {
-			return err
+func (a *adapter) inChannels(room string) bool {
+	for _, r := range a.channels {
+		if r == room {
+			return true
 		}
 	}
 
-	return nil
-}
-
-func (a *adapter) sendIRC(res *hal.Response, strings ...string) error {
-	hal.Logger.Debug("slack - sending IRC response")
-	for _, str := range strings {
-		s := &slackPayload{
-			Channel: res.Message.Room,
-			Text:    str,
-		}
-		a.ircConnection.Privmsg(s.Channel, s.Text)
-	}
-
-	return nil
+	return false
 }

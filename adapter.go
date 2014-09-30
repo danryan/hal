@@ -27,17 +27,17 @@ type adapter struct {
 	recvChan chan *Message
 }
 
-// Adapters is a map of registered adapters
-var Adapters = map[string]adapter{}
+// AvailableAdapters is a map of registered adapters
+var AvailableAdapters = map[string]adapter{}
 
 // NewAdapter creates a new initialized adapter
 func NewAdapter(robot *Robot) (Adapter, error) {
 	name := Config.AdapterName
-	if _, ok := Adapters[name]; !ok {
+	if _, ok := AvailableAdapters[name]; !ok {
 		return nil, fmt.Errorf("%s is not a registered adapter", Config.AdapterName)
 	}
 
-	adapter, err := Adapters[name].newFunc(robot)
+	adapter, err := AvailableAdapters[name].newFunc(robot)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func NewAdapter(robot *Robot) (Adapter, error) {
 
 // RegisterAdapter registers an adapter
 func RegisterAdapter(name string, newFunc func(*Robot) (Adapter, error)) {
-	Adapters[name] = adapter{
+	AvailableAdapters[name] = adapter{
 		name:    name,
 		newFunc: newFunc,
 	}
