@@ -74,8 +74,6 @@ func New(r *hal.Robot) (hal.Adapter, error) {
 
 // Send sends a regular response
 func (a *adapter) Send(res *hal.Response, strings ...string) error {
-	var err error
-
 	if a.responseMethod == "irc" {
 		if !a.ircEnabled {
 			return errors.New("slack - IRC response method used but IRC is not enabled")
@@ -83,7 +81,7 @@ func (a *adapter) Send(res *hal.Response, strings ...string) error {
 		a.sendIRC(res, strings...)
 
 	} else {
-		err = a.sendHTTP(res, strings...)
+		err := error(a.sendHTTP(res, strings...))
 		if err != nil {
 			return err
 		}
