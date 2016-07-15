@@ -30,9 +30,10 @@ func newLogger() *logrus.Logger {
 	if err != nil {
 		panic(err)
 	}
-	return &logrus.Logger{
-		Level: level,
-	}
+	logger := logrus.New()
+	logger.Level = level
+	
+	return logger
 }
 
 // newRouter initializes a new http.ServeMux and sets up several default routes
