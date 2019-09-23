@@ -1,5 +1,8 @@
 # HAL
 
+## Unmaintained. Sorry :(
+
+
 Hal is a chat bot framework written in the Go programming language.
 
 [![](http://img.shields.io/badge/everything-AWESOME-brightgreen.svg)](http://youtu.be/StTqXEQ2l-Y "Everything status: AWESOME")
